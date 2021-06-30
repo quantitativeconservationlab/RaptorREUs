@@ -291,4 +291,8 @@ write.csv(x = act_df,
           file = paste0( datapath, 'activity_df.csv'), 
           row.names = FALSE )
 
+#saving station details for those we surveyed
+write.csv( x = stn_df, file = paste0( datapath, 'stn_df' ), 
+           row.names = FALSE )
+
 ############### END OF SCRIPT #################################################
