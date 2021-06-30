@@ -79,21 +79,23 @@ station_df <- left_join( surveys, stations,
 station_df; dim( station_df )
 # why is checking dimensions important?
 
-# to calculate hour when sun set we need coordinates. Our spatial infor is #
-# in easting northings but we need lat longs
+# to calculate hour when the sun set we need coordinates. Our spatial info is #
+# in easting northings but we need lat longs. #
 # if you want to learn a bit more about dealing with spatial data, go through #
 # the spatial tutorial in our lab...the readme also has links to other online #
-# options
+# options. #
 
-# Here we rely on the faily new sf package for spatial manipulations. #
+# Here we rely on the recently created sf package for spatial manipulations. #
 # rgdal and sp used to be the main options but sf is more compatible with #
 # tidyverse packages so I recommend that instead. #
 
-# We first need to define what UTM we used to collect the coordinates. 
-# Details are in the station_details table: UTM WSG84 for zone 12
-# Those details are captured as epgs. I goggled epgs WSG84 zone 12 to get 
-# the code used here:
+# We first need to define what UTM we used to collect the coordinates. #
+# Details are in the station_details table: UTM WSG84 for zone 12 #
+# Those details are captured as epgs. I goggled epgs WSG84 zone 12 to get #
+# the epgs code. Then I create an object that defines the projection:
 setcrs <- sf::st_crs( 32612 )
+#view it:
+setcrs
 # since our object dataframe doesn't have spatial information. We first create #
 # a new spatial dataframe providing the spatial details including epgs:
 station_sp <- sf::st_as_sf( station_df, 
@@ -101,25 +103,31 @@ station_sp <- sf::st_as_sf( station_df,
                             coords = c( "easting", "northing"), 
                             #what projection are we using?
                                 crs = setcrs )
+# the st_as_sf function converts a traditional dataframe into a spatial dataframe
+# note that to do that it asks us to provide coordinates and projection. 
 #view
 head( station_sp )
+# What differences do you note between it and the station_df?
+
 #Note that the easting northing columns have shifted to geometry so if we want #
 # to keep them in the dataframe we need to extract them:
 station_sp$easting <- st_coordinates( station_sp)[,1]
 station_sp$northing <- st_coordinates( station_sp )[,2]
 
 #We then convert our spatial dataframe to lat longs, that requires a different epgs #
-# google WSG84 epgs lat long to get the correct code:
-# transform coordinates to the new epgs:
+# google WSG84 epgs lat long to get the correct epgs:
+# We do this by transforming coordinates to the new desired epgs:
 station_sp <- st_transform( station_sp, crs = 4326 )
 #extract lat longs as columns in the dataframe:
 station_sp$lon <- st_coordinates( station_sp)[,1]
 station_sp$lat <- st_coordinates( station_sp )[,2]
-
 #check
 head( station_sp )
-#keep the columns we need and remove spatial data so we can save it as a csv:
-stn_df <- station_sp %>% dplyr::select( survey_id, year, recorder_no, 
+
+#Convert back to non-spatial dataframe so we can save it as a csv:
+# keep the columns we need and remove spatial data 
+stn_df <- station_sp %>% 
+            dplyr::select( survey_id, year, recorder_no, 
             coord_system, coord_zone, station_no = station_no.y, 
             easting, northing, lon, lat ) %>% 
   #remove spatial info 
@@ -133,12 +141,15 @@ head( records ); dim( records )
 # note that the columns are in the order that they were created, not #
 # in the viewing order that we had them for entering data. #
 # Also that time was added to the date columns, and dates were added to #
-# the time columns. We need to remove those. 
+# the time columns. We need to remove those as they are not correct.#
+# Next time it would be easier to keep the date and time in the same entry. #
 
-#There are intermediate steps that we don't want to keep in our dataframe
-# so we create them as separate objects
-#extract date by keeping everything before white space
+#There are intermediate steps that we don't need in our dataframe. #
+# One option is to create them as separate objects that don't get added.
+#extract date info only by keeping everything before white space
 date_keep <- sub(" .*", "", records$record_date)
+# did it work?
+data_keep[1:10]
 # extract time only by keeping everything after white space
 start_keep <- sub(".* ", "", records$record_starttime)
 end_keep <- sub(".* ", "", records$record_endtime)
@@ -146,18 +157,26 @@ end_keep <- sub(".* ", "", records$record_endtime)
 comb_start <- paste( date_keep, start_keep, sep = " " )
 # repeat for endtime
 comb_end <- paste( date_keep, end_keep, sep = " " )
+#what does that look like now?
+comb_end[1:10]
 
-#Now we are ready to use our updated date/times and to calculate #
+#Now we are ready to use these updated date/times objects to calculate #
 # duration of events
 # We rely on tidyverse to do all of these using piping
-#create a new dataframe for your records
+#create a new dataframe in case you stuff up. This way you don't have to start#
+# from scratch. Does that make sense?
 records_df <- records %>% 
     #create new columns
-    mutate( #create date/time columns for start and endtimes
+    mutate( #create date/time columns for start and endtimes.
+      #Note use of lubridate to transfor a string to a date. Defining time zone is important
     start_time = lubridate::dmy_hms( comb_start, tz = "US/Arizona" ),
+    # here we keep date on it's own and turn it into traditional data format using 
+    # as_date so that it can be used by suncalc package to calculate sunset times
     date = as_date( lubridate::dmy( sub(" .*", "", record_date), tz = "US/Arizona" ) ),
     end_time = lubridate::dmy_hms( comb_end, tz = "US/Arizona" ),
-    #calculate duration of event in minutes
+    #calculate duration of event in minutes, using lubridate functions
+    # note duration is in seconds and so we divide by 60 to get to minutes and turn 
+    # it into a number with as.numeric
     duration_m = as.numeric( as.duration( interval(start_time, end_time) )/ 60 ) ) %>% 
   # select columns you want to keep and order them 
   dplyr::select( survey_id, night_no, date, start_time, end_time,
@@ -170,14 +189,16 @@ head( records_df ); dim( records_df)
 # look at the first row. How many more are there?
 #here we extract rows with negative values as a way to find out:
 records_df[ which( records_df$duration_m <0 ), ]
-#fix those that go onto next day
+# We fixed records back in database...so that the correct ones are accesible #
+# for others.
+# Remaining are those that go onto next day
 #start by flagging the row ids of those that need fixing:
 rowfix <- which( records_df$duration_m < 0 ) 
 #view
 rowfix
 #loop through each row that needs fixing
 for( i in rowfix ){
-  #update date of end time
+  #update date of end time to the following day
   newdate <- lubridate::dmy_hms( paste( date_keep[i], end_keep[i], 
                     sep = " " ), tz = "US/Arizona" ) %m+% days(1)
 #check that it worked
@@ -195,17 +216,18 @@ records_df$end_time[i] <- newdate
 records_df$duration_m[i] <- b
 }
 
-#Now recheck that the duration periods look ok by plotting them in a histogram:
+#Recheck duration by plotting a quick histogram:
 hist( records_df$duration_m )
 #check those > 200 minutes, just in case
 records_df[which( records_df$duration_m > 200 ), ]
 
-########calculate sunset times
+########calculate sunset times ---------------------------------
 #add lat long to records dataframe
+# We start by selecting columns of interest in stn_df
 records_df <- stn_df %>%
   #extract columns of interest for station dataframe
             dplyr::select( survey_id, lat, lon ) %>%
-  #append only those columns to records_df
+  #Then append only those columns to records_df
             right_join( records_df, by = "survey_id") 
 
 #check
@@ -221,14 +243,17 @@ head( sunsets )
 records_df$sunset <- sunsets$sunset
 #now calculate minutes and hours from sunset
 records_df <- records_df %>% 
+  #same approach as before using lubridate functions
   mutate( aftersun_m = as.numeric( as.duration( interval( sunset, start_time) /60 )),
+          #we also calculate it in hours for easier plotting
           aftersun_h = aftersun_m / 60 )
 #check
-head( records_df)
-#modify morning times
+head( records_df )
+#modify morning times since they happened the next day
 #extract record rowid that happened earlier than 1 hr before sunset:
 rs <-  which( records_df$aftersun_h < -1 )
-# add the day to specify that it was the owl was detected the next morning
+#We use 1 hr because owls did call before sunset sometimes
+# To those records, add one day to specify that the owl was detected the next morning
 records_df$aftersun_h[rs] <- as.numeric( as.duration( 
               interval( records_df$sunset[rs],
               records_df$start_time[rs] %m+% days(1)) /60) /60 )
@@ -241,7 +266,7 @@ hist( records_df$aftersun_h )
 #############################################################################
 #### creating project specific databases  ####################################
 # Activity time dataframe --------------
-# Choose only records with owls (since they are all in capital letter, #
+# Choose only records with owls (since they are all in capital letters, #
 # we rely on that attribute for our row selection )#
 #here we create a new dataframe that filters out all rows except those with upper
 # letters in the record column:
@@ -254,15 +279,16 @@ head( act_df ); dim( act_df )
 #############################################################################
 # Saving relevant objects and data ---------------------------------
 # Note we don't save the workspace here. Why is that?
-#save all records
+#save all records dataframe
 write.csv(x = records_df, 
           #ensure that you save it onto your datafolder
           file = paste0( datapath, 'clean_records_df.csv'), 
           row.names = FALSE )
+
 # Save activity time dataframe
 write.csv(x = act_df, 
           #ensure that you save it onto your datafolder
           file = paste0( datapath, 'activity_df.csv'), 
           row.names = FALSE )
 
-############### END OF SCRIPT ########################################
+############### END OF SCRIPT #################################################

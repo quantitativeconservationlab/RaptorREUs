@@ -1,6 +1,7 @@
 #########################################################################
 ###  This Rscript was started by Dr. Jen Cruz at Boise State University #
-#                                                                       #
+#     Here we visualize activity times for owls at the Grand Canyon     #
+# We then analyze the overlap in their activity times.                  #
 ##########################################################################
 ##### Set up your workspace and load relevant packages -----------
 # Clean your workspace to reset your R environment. #
@@ -24,7 +25,7 @@ getwd()
 # set up your working directory:
 workdir <- getwd()
 
-# set datapath
+# set your own datapath
 datapath <- "C:/Users/jencruz/Google Drive/QCLabShared/Projects/REUs2021/database/"
 
 #import records: calls file by pasting datapath to filename:
@@ -44,5 +45,9 @@ act_df %>%
   theme_bw() +
   geom_histogram() +
   facet_wrap( ~record, nrow = 5 )
+
+
+#############################################################################
+# Saving relevant objects and data ---------------------------------
 
 ############### END OF SCRIPT ########################################
