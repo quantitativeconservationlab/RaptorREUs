@@ -25,11 +25,14 @@ getwd()
 install.packages( "tidyverse" ) #actually a collection of packages 
 install.packages( "lubridate") 
 install.packages( "sf" ) #manipulate spatial data
+install.packages( "suncalc") #calculates sun and moon phases and positions
 
 # load packages relevant to this script:
 library( tidyverse ) #easy data manipulation
 library( lubridate ) #easy date and time manipulation
 library( sf ) #for spatial data
+library( suncalc )
+
 ## end of package load ###############
 
 ###################################################################
@@ -62,41 +65,69 @@ stations <- read.csv( file = paste0( datapath,"station_details.csv" ),
 
 #######################################################################
 ######## explore data #############
-# start by extracting station details for those stations we have data for
+###### start by extracting station details for those stations we have data for ####
+#first view objects to ensure that they downloaded properly:
 head( surveys ); dim( surveys )
 head( stations ); dim( stations )
 
-#we join dataframes 
+#join dataframes to extract info only for those stations that we processed #
+#data for:
 station_df <- left_join( surveys, stations, 
                 by = c( "station_no" = "station_id", 
                     "year" = "year", "site" = "site" ) )
 #view
 station_df; dim( station_df )
+# why is checking dimensions important?
 
-#define spatial info from details in database WSG84 for zone 12
+# to calculate hour when sun set we need coordinates. Our spatial infor is #
+# in easting northings but we need lat longs
+# if you want to learn a bit more about dealing with spatial data, go through #
+# the spatial tutorial in our lab...the readme also has links to other online #
+# options
+
+# Here we rely on the faily new sf package for spatial manipulations. #
+# rgdal and sp used to be the main options but sf is more compatible with #
+# tidyverse packages so I recommend that instead. #
+
+# We first need to define what UTM we used to collect the coordinates. 
+# Details are in the station_details table: UTM WSG84 for zone 12
+# Those details are captured as epgs. I goggled epgs WSG84 zone 12 to get 
+# the code used here:
 setcrs <- sf::st_crs( 32612 )
+# since our object dataframe doesn't have spatial information. We first create #
+# a new spatial dataframe providing the spatial details including epgs:
 station_sp <- sf::st_as_sf( station_df, 
+                            #which columns contain spatial data:
                             coords = c( "easting", "northing"), 
+                            #what projection are we using?
                                 crs = setcrs )
-#at this point the easting northings have shifted to geometry so if we want #
-# to keep them in the dataframe we need to extract them
-station_sp$easting <- st_coordinates( station_sp)[,1]
-station_sp$northing <- st_coordinates( station_sp )[,2]
-#We convert to lat longs so that we can calculate sunshine time
-station_sp <- st_transform( station_sp, crs = 4326 )
-#extract these values to the dataframe again:
-station_sp$long <- st_coordinates( station_sp)[,1]
-station_sp$lat <- st_coordinates( station_sp )[,2]
-
 #view
 head( station_sp )
-#now keep the columns we need and remove spatial data
+#Note that the easting northing columns have shifted to geometry so if we want #
+# to keep them in the dataframe we need to extract them:
+station_sp$easting <- st_coordinates( station_sp)[,1]
+station_sp$northing <- st_coordinates( station_sp )[,2]
+
+#We then convert our spatial dataframe to lat longs, that requires a different epgs #
+# google WSG84 epgs lat long to get the correct code:
+# transform coordinates to the new epgs:
+station_sp <- st_transform( station_sp, crs = 4326 )
+#extract lat longs as columns in the dataframe:
+station_sp$lon <- st_coordinates( station_sp)[,1]
+station_sp$lat <- st_coordinates( station_sp )[,2]
+
+#check
+head( station_sp )
+#keep the columns we need and remove spatial data so we can save it as a csv:
 stn_df <- station_sp %>% dplyr::select( survey_id, year, recorder_no, 
-            coord_system, coord_zone, station_no.y, 
-            easting, northing, long, lat ) %>% st_set_geometry( NULL )
+            coord_system, coord_zone, station_no = station_no.y, 
+            easting, northing, lon, lat ) %>% 
+  #remove spatial info 
+  st_set_geometry( NULL )
 #check
 head( stn_df )
-# clean records table -----------------------------------------------
+##### end station details for our survey data ---------
+# Records table -----------------------------------------------
 # View top rows and object attributes
 head( records ); dim( records )
 # note that the columns are in the order that they were created, not #
@@ -105,14 +136,15 @@ head( records ); dim( records )
 # the time columns. We need to remove those. 
 
 #There are intermediate steps that we don't want to keep in our dataframe
-# so we just create these as separate objects
-#keep everything before white space
+# so we create them as separate objects
+#extract date by keeping everything before white space
 date_keep <- sub(" .*", "", records$record_date)
-#keep everything after white space
+# extract time only by keeping everything after white space
 start_keep <- sub(".* ", "", records$record_starttime)
 end_keep <- sub(".* ", "", records$record_endtime)
 #combine correct date with correct start time
 comb_start <- paste( date_keep, start_keep, sep = " " )
+# repeat for endtime
 comb_end <- paste( date_keep, end_keep, sep = " " )
 
 #Now we are ready to use our updated date/times and to calculate #
@@ -123,12 +155,14 @@ records_df <- records %>%
     #create new columns
     mutate( #create date/time columns for start and endtimes
     start_time = lubridate::dmy_hms( comb_start, tz = "US/Arizona" ),
+    date = as_date( lubridate::dmy( sub(" .*", "", record_date), tz = "US/Arizona" ) ),
     end_time = lubridate::dmy_hms( comb_end, tz = "US/Arizona" ),
     #calculate duration of event in minutes
     duration_m = as.numeric( as.duration( interval(start_time, end_time) )/ 60 ) ) %>% 
   # select columns you want to keep and order them 
-  dplyr::select( survey_id, night_no, start_time, end_time,
-                 duration_m, record, sex, call_type, noise_type )
+  dplyr::select( survey_id, night_no, date, start_time, end_time,
+                 duration_m, 
+                 record, sex, call_type, noise_type )
 
 #view that your new dataframe worked
 head( records_df ); dim( records_df)
@@ -166,9 +200,46 @@ hist( records_df$duration_m )
 #check those > 200 minutes, just in case
 records_df[which( records_df$duration_m > 200 ), ]
 
-########## end of initial data cleaning #################################
-#### creating project specific databases  ####################################
+########calculate sunset times
+#add lat long to records dataframe
+records_df <- stn_df %>%
+  #extract columns of interest for station dataframe
+            dplyr::select( survey_id, lat, lon ) %>%
+  #append only those columns to records_df
+            right_join( records_df, by = "survey_id") 
 
+#check
+head(records_df ); dim( records_df)
+
+#now calculate sunset time
+sunsets <- getSunlightTimes( data = records_df[ ,c("date", "lat", "lon")], 
+                             keep = c("sunset"),
+                             tz = "US/Arizona" )
+#check
+head( sunsets )
+#add sunset time to dataframe
+records_df$sunset <- sunsets$sunset
+#now calculate minutes and hours from sunset
+records_df <- records_df %>% 
+  mutate( aftersun_m = as.numeric( as.duration( interval( sunset, start_time) /60 )),
+          aftersun_h = aftersun_m / 60 )
+#check
+head( records_df)
+#modify morning times
+#extract record rowid that happened earlier than 1 hr before sunset:
+rs <-  which( records_df$aftersun_h < -1 )
+# add the day to specify that it was the owl was detected the next morning
+records_df$aftersun_h[rs] <- as.numeric( as.duration( 
+              interval( records_df$sunset[rs],
+              records_df$start_time[rs] %m+% days(1)) /60) /60 )
+
+#check again
+head( records_df)
+#quick histogram
+hist( records_df$aftersun_h )
+########## end of initial data cleaning #################################
+#############################################################################
+#### creating project specific databases  ####################################
 # Activity time dataframe --------------
 # Choose only records with owls (since they are all in capital letter, #
 # we rely on that attribute for our row selection )#
@@ -178,14 +249,15 @@ act_df <- records_df %>% filter( str_detect( record, '[:upper:]') )
 #check that it worked
 head( act_df ); dim( act_df )
 #so total of 89 records to work with 
-
-
+#####end activity df #######
+######
+#############################################################################
 # Saving relevant objects and data ---------------------------------
 # Note we don't save the workspace here. Why is that?
-#save station details for relevant surveys
-write.csv(x = stn_df, 
+#save all records
+write.csv(x = records_df, 
           #ensure that you save it onto your datafolder
-          file = paste0( datapath, 'stn_df.csv'), 
+          file = paste0( datapath, 'clean_records_df.csv'), 
           row.names = FALSE )
 # Save activity time dataframe
 write.csv(x = act_df, 
