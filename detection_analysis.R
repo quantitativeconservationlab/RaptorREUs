@@ -3,6 +3,8 @@
 #     Here we relate detection of Mexican spotted owls using sound      #
 #   recorders at historical territories within the canyon where they are #
 #  known to occur.                                                       #
+# Predictors include weather data downloaded from NOAA as hourly records #
+# for 01-Jan-2019 to 30-Jun-2021.                                        # 
 ##########################################################################
 ##### Set up your workspace and load relevant packages -----------
 # Clean your workspace to reset your R environment. #
@@ -10,8 +12,6 @@ rm( list = ls() )
 # Check that you are in the right project folder (i.e. that you are in the 
 # correct Rstudio project) #
 getwd()
-#install relevant packages that have not already been installed in your PC:
-install.packages( "ggplot2" )#nice plotting
 
 #load relevant packages
 library( tidyverse ) #easy data manipulation
@@ -35,6 +35,10 @@ all_df <- read.csv( file = paste0( datapath,"clean_records_df.csv" ),
 stn_df <- read.csv( file = paste0( datapath,"stn_df.csv" ),
                     header = TRUE )
 
+#import weather data 
+allweather <- read.csv( file = paste0( datapath, "/predictor_data/weather2019-2021GCA.csv"),
+                        header = TRUE )
+
 #######################################################################
 ######## ready data for analysis #############
 head( all_df )
@@ -47,13 +51,14 @@ keep <- all_df %>%
 # further analysis. #
 dec_df <- all_df %>%  
         filter( survey_id %in% keep$survey_id )
+# We have 3 stations to work with
 #check
 head( dec_df ); dim( dec_df )
 #what does our data look like?
 # how many of each record
 table( dec_df$record )
 
-#how many days for each station
+#how many days for each station?
 sdays <- table( dec_df$date, dec_df$survey_id )
 sdays
 # Note that we only have records for 2020 and 2021. The dates do not overlap
@@ -62,9 +67,9 @@ sdays
 sdates <- sort( rownames( sdays ) )
 sdates
 # convert the date strings to proper dates with lubridate:
-sdates <- ymd( sdates )
+sdates <- lubridate::ymd( sdates )
 # calculate day of year (julian day)
-jday <- yday( sdates )
+jday <- lubridate::yday( sdates )
 date_df <- data.frame( sdates = sdates, jday = jday )
 head( date_df ); dim( date_df )
 # could add stage of breeding season also 
@@ -76,7 +81,19 @@ dec_df %>% ggplot( . ) +
   geom_histogram( aes( x = duration_m ) ) +
   facet_wrap( ~ record,  )
 
+### sorting out predictors ----------------------------------------
+# view raw file
+head( allweather ); dim( allweather )
+# a lot of records and columns! 
+# what columns may we be interested in?
+colnames( allweather )
+#  [2] "DATE", [45] "HourlyPrecipitation",  [55] "HourlyWindDirection",
+# [56] "HourlyWindGustSpeed", [57] "HourlyWindSpeed"                          
 
+# we start by removing columns we are not intersted in:
+weather_df <- allweather %>% 
+            select( DATE, HourlyPrecipitation, HourlyWindDirection,
+                    HourlyWindGustSpeed, HourlyWindSpeed )
 
 #############################################################################
 # Saving relevant objects and data ---------------------------------

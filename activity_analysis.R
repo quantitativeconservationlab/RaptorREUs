@@ -9,13 +9,11 @@ rm( list = ls() )
 # Check that you are in the right project folder (i.e. that you are in the 
 # correct Rstudio project) #
 getwd()
-#install relevant packages that have not already been installed in your PC:
-install.packages( "ggplot2" )#nice plotting
 
 #load relevant packages
 library( tidyverse ) #easy data manipulation
 library( lubridate ) #easy date and time manipulation
-library( ggplot2 )
+
 ## end of package load ###############
 
 ###################################################################
