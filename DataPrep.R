@@ -149,7 +149,7 @@ head( records ); dim( records )
 #extract date info only by keeping everything before white space
 date_keep <- sub(" .*", "", records$record_date)
 # did it work?
-data_keep[1:10]
+date_keep[1:10]
 # extract time only by keeping everything after white space
 start_keep <- sub(".* ", "", records$record_starttime)
 end_keep <- sub(".* ", "", records$record_endtime)
@@ -170,18 +170,14 @@ records_df <- records %>%
     mutate( #create date/time columns for start and endtimes.
       #Note use of lubridate to transfor a string to a date. Defining time zone is important
     start_time = lubridate::dmy_hms( comb_start, tz = "US/Arizona" ),
-    # here we keep date on it's own and turn it into traditional data format using 
-    # as_date so that it can be used by suncalc package to calculate sunset times
-    date = as_date( lubridate::dmy( sub(" .*", "", record_date), tz = "US/Arizona" ) ),
     end_time = lubridate::dmy_hms( comb_end, tz = "US/Arizona" ),
     #calculate duration of event in minutes, using lubridate functions
     # note duration is in seconds and so we divide by 60 to get to minutes and turn 
     # it into a number with as.numeric
     duration_m = as.numeric( as.duration( interval(start_time, end_time) )/ 60 ) ) %>% 
   # select columns you want to keep and order them 
-  dplyr::select( survey_id, night_no, date, start_time, end_time,
-                 duration_m, 
-                 record, sex, call_type, noise_type )
+  dplyr::select( survey_id, start_time, end_time,
+                 duration_m, record, sex, call_type, noise_type )
 
 #view that your new dataframe worked
 head( records_df ); dim( records_df)
@@ -231,7 +227,26 @@ records_df <- stn_df %>%
             right_join( records_df, by = "survey_id") 
 
 #check
-head(records_df ); dim( records_df)
+tail(records_df ); dim( records_df)
+
+#add year column for plotting
+records_df$year <- lubridate::year(records_df$start_time) 
+#add starthour column to work out which records occured in the morning
+records_df$start_hour <- lubridate::hour( records_df$start_time )
+
+#histogram of start times
+ggplot( records_df, aes( x = hour(start_time) ) )+
+  theme_bw() + geom_histogram() + facet_wrap( ~year, nrow = 3 )
+
+#select those records that occurred in the morning between midnight and 7am:
+rid <- which( (records_df$start_hour >= 0 ) & (records_df$start_hour <= 7) )
+#we want the previous day's date for these 
+#start by creating date column in the format needed by suncalc package:
+records_df$date <- as_date( records_df$start_time )
+#replace those morning records with previous day's date:
+records_df$date[rid] <- as_date( records_df$start_time[rid] %m-% days(1) )
+#check
+tail(records_df ); dim( records_df)
 
 #now calculate sunset time
 sunsets <- getSunlightTimes( data = records_df[ ,c("date", "lat", "lon")], 
@@ -248,20 +263,10 @@ records_df <- records_df %>%
           #we also calculate it in hours for easier plotting
           aftersun_h = aftersun_m / 60 )
 #check
-head( records_df )
-#modify morning times since they happened the next day
-#extract record rowid that happened earlier than 1 hr before sunset:
-rs <-  which( records_df$aftersun_h < -1 )
-#We use 1 hr because owls did call before sunset sometimes
-# To those records, add one day to specify that the owl was detected the next morning
-records_df$aftersun_h[rs] <- as.numeric( as.duration( 
-              interval( records_df$sunset[rs],
-              records_df$start_time[rs] %m+% days(1)) /60) /60 )
+head( records_df );dim( records_df )
+#plot histogram of negative records
+hist( records_df$aftersun_h)#
 
-#check again
-head( records_df)
-#quick histogram
-hist( records_df$aftersun_h )
 ########## end of initial data cleaning #################################
 #############################################################################
 #### creating project specific databases  ####################################
