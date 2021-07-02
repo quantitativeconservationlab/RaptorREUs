@@ -247,10 +247,14 @@ owl_hr$sunset_hr[ which(owl_hr$jday > 85 ) ] <- 19
 head( owl_df )
 #Calculate aftersun_h:
 owl_hr$aftersun_h <- owl_hr$hr - owl_hr$sunset_hr 
+owl_hr$aftersun_h[ which( (owl_hr$aftersun_h < -2) | (owl_hr$aftersun_h > 5) )] <- 
+  owl_hr$aftersun_h[ which( (owl_hr$aftersun_h < -2) | (owl_hr$aftersun_h > 5) )] + 24
+#<-
 #check
-head( owl_hr );dim( owl_hr )
+head( owl_hr,20 );dim( owl_hr )
 # We never detected owls < 2 hrs or more tan 12 hrs after sun so remove those:
-owl_hr <- owl_hr[ which( (owl_hr$aftersun_h > -3 ) & ( owl_hr$aftersun_h < 12 ) ), ]
+owl_hr <- owl_hr[ which( (owl_hr$aftersun_h > -3 ) & ( owl_hr$aftersun_h < 13 ) ), ]
+
 #check
 head( owl_hr );dim( owl_hr )
 
