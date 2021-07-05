@@ -126,8 +126,6 @@ nullm <- glmer( stoc ~ (1|jday), family = binomial,
 #  whole model including fixed and random (R2c) using the MuMIn package:
 MuMIn::r.squaredGLMM( m1, nullm )
 # How do we interpret these results?
-# Answer: 
-# 
 # Tip: think about how much the R2c and R2m differ, and how much of that #
 # is due to the fixed effects.
 
@@ -139,11 +137,33 @@ plot( model_simres )
 # Answer:
 #
 
-#### view partial relationships with important predictors:
-visreg( m1 )
-# What would be our conclusions based on these results?
-# Answer:
-#
+#### view partial relationships between response and predictors:
+visreg( #which model do we want to plot results for?
+    fit =  m1,  
+    #transform y from logit back to probability
+    scale = "response",
+    ylab = "Detection probability" 
+        )
+# Note the different limits on the y axis. Which effect was strongest?
+
+# if we want to stick to visreg, we could rerun the model with the unscaled 
+# values and use those results for plotting
+m2 <- glmer( stoc ~ aftersun_h + 
+               HourlyWindSpeed + HourlyTemp + HourlyRain +
+               (1|jday), family = binomial,
+             data = stoc_df )
+#check that we got the same p values
+summary( m2 )
+#plot all to check
+visreg( fit =  m2,   
+  #transform y from logit back to probability
+  scale = "response", ylab = "Detection probability" 
+)
+#plot only the important variables
+#readjust number of panels and increase font size
+par( mfrow = c(1,1), cex = 1.7)
+visreg( fit = m2, scale = "response", xvar = "aftersun_h",
+        ylab = "Detection probability", xlab = "Hours after sun")
 
 #############################################################################
 # Saving relevant objects and data ---------------------------------
