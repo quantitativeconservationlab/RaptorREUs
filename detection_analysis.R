@@ -18,18 +18,15 @@ getwd()
 #install packages
 install.packages( "lmerTest" )
 install.packages( "visreg" )
-install.packages( "pbkrtest" )
 install.packages( "MuMIn")
 install.packages( "DHARMa")
-install.packages( "gamm4" )
+
 #load packages
 library( tidyverse )
 library( lmerTest ) #allows fitting of mixed effect models for better diagnostics
 library( visreg ) #plotting of mixed effect models
-library( pbkrtest ) #to estimate better p-values for mixed-effects models
 library( MuMIn ) # for model evaluation of mixed-effects models 
 library( DHARMa ) #diagnostics for residuals in mixed-effect models
-library(gamm4)
 # set option to see all columns and more than 10 rows
 options( dplyr.width = Inf, dplyr.print_min = 100 )
 ## end of package load ###############
@@ -46,9 +43,33 @@ datapath <- "C:/Users/jencruz/Google Drive/QCLabShared/Projects/REUs2021/databas
 stoc_df <- read.csv( file = paste0( datapath,"stoc_det_df.csv" ),
                     header = TRUE )
 
+#import activity density estimates from using overlap package "delta1":
+act_df <- read.csv( file = paste0( datapath, 'stoc_activitydens.csv'),
+                    header = TRUE )
+
 #######################################################################
 ######## ready data for analysis #############
+# check our owl dataframe
 tail( stoc_df,20 ); dim( stoc_df )
+#now check estimates from Emily's work:
+head( act_df )
+# hours in act_df are 0:23 but on stoc_df, 23 is -1 and 22 is -2. #
+# We edit those so that we can append activity density to our main dataframe
+act_df$hrs_aftersun[ which(act_df$hrs_aftersun == 23) ] <- -1
+act_df$hrs_aftersun[ which(act_df$hrs_aftersun == 22) ] <- -2
+
+# combine dataframes
+stoc_df <- act_df %>% select( aftersun_h = hrs_aftersun, dens ) %>% 
+  right_join( stoc_df, by = "aftersun_h" )
+#check
+head( stoc_df ); dim( stoc_df )
+# Creating Wind index at relevant time
+# Higher wind speed should matter more at more active times. We create an index
+# by first scaling the windspeed based on max value so that it ranges between
+# 0 and 1, then multiply by density estimate, which reflects the level of vocal
+# activity of Mexican spotted owls in that hour:
+stoc_df <- stoc_df %>% 
+        mutate( WindIndex = (HourlyWindSpeed / max( HourlyWindSpeed )) * dens )
 
 # Before any formal analysis we need to check our data for outliers, 
 # colinearity among predictors, sample size etc.
@@ -56,7 +77,7 @@ tail( stoc_df,20 ); dim( stoc_df )
 # We start by checking for outliers, skewed distribution etc #
 # create a vector with predictor names
 prednames <- c("jday", "aftersun_h", "HourlyWindSpeed",
-               "HourlyTemp", "HourlyRain" )
+               "HourlyTemp", "HourlyRain", "dens", "WindIndex" )
 # loop over each to create histograms for each predictor:
 for( p in 1:length(prednames) ){
   # create an object with the ggplot so that you can display it 
@@ -100,10 +121,12 @@ cor( stoc_df[ , prednames] )
 
 # We standardise predictors so that we can compare effect sizes
 sc_df <- stoc_df
-sclpreds <- c( "jday", "aftersun_h", "HourlyWindSpeed", "HourlyTemp", "HourlyRain")
+sclpreds <- c( "jday", "aftersun_h", "HourlyWindSpeed", "HourlyTemp", 
+               "HourlyRain", "WindIndex")
 for( i in 1:length(sclpreds ) ){
   sc_df[,sclpreds[i]]  <- scale( sc_df[ ,sclpreds[i] ] )
-}
+ print( hist( sc_df[,sclpreds[i]], main = sclpreds[i] ) )
+  }
 head( sc_df )
 #Why do we scale predictors?
 
@@ -113,12 +136,13 @@ head( sc_df )
 
 # We start by running a full model including all fixed effects of interest #
 # as well as a random intercept for survey 
-m1 <- glmer( stoc ~ aftersun_h + 
-               HourlyWindSpeed + HourlyTemp + HourlyRain +
+m1 <- glmer( stoc ~ aftersun_h + HourlyTemp + HourlyRain +
+               HourlyWindSpeed + WindIndex + dens +
                (1|jday), family = binomial,
              data = sc_df )
 #view results
 summary( m1 )
+
 #What do the random intercepts account for?
 nullm <- glmer( stoc ~ (1|jday), family = binomial,
                 data = sc_df )
@@ -142,14 +166,14 @@ visreg( #which model do we want to plot results for?
     fit =  m1,  
     #transform y from logit back to probability
     scale = "response",
-    ylab = "Detection probability" 
+    ylab = "Detection probability"
         )
 # Note the different limits on the y axis. Which effect was strongest?
 
 # if we want to stick to visreg, we could rerun the model with the unscaled 
 # values and use those results for plotting
-m2 <- glmer( stoc ~ aftersun_h + 
-               HourlyWindSpeed + HourlyTemp + HourlyRain +
+m2 <- glmer( stoc ~ aftersun_h + HourlyTemp + HourlyRain +
+               HourlyWindSpeed + WindIndex + dens +
                (1|jday), family = binomial,
              data = stoc_df )
 #check that we got the same p values
@@ -161,9 +185,16 @@ visreg( fit =  m2,
 )
 #plot only the important variables
 #readjust number of panels and increase font size
-par( mfrow = c(1,1), cex = 1.7)
-visreg( fit = m2, scale = "response", xvar = "aftersun_h",
-        ylab = "Detection probability", xlab = "Hours after sun")
+par( mfrow = c(1,1), cex = 1.7 )
+visreg( fit = m2, scale = "response", xvar = "dens",
+        ylab = "Detection probability", xlab = "Density of diel vocal activity")
+
+# relationship between hours after sunset and owl vocal activity
+ggplot( stoc_df, aes( x = aftersun_h, y = dens ) ) +
+  theme_bw( base_size = 15 ) +
+  labs( x = "Hours after sunset", y = "Density of vocal activity" ) +
+  geom_line( size = 2 )
+# How would you use this results to guide monitoring?
 
 #############################################################################
 # Saving relevant objects and data ---------------------------------
