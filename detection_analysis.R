@@ -69,7 +69,15 @@ head( stoc_df ); dim( stoc_df )
 # 0 and 1, then multiply by density estimate, which reflects the level of vocal
 # activity of Mexican spotted owls in that hour:
 stoc_df <- stoc_df %>% 
-        mutate( WindIndex = (HourlyWindSpeed / max( HourlyWindSpeed )) * dens )
+        mutate( 
+          #first index accounts for windspeed ranking them based on max
+          #value detected, then multiplies them by activity density
+          # to account for when they occurred
+        WindIndex = (HourlyWindSpeed / max( HourlyWindSpeed )) * dens,
+        #second index only looks at windspeeds > 15 (since owls were detected
+        # at less speeds than that ) # and then assigns the activity density #
+        #value to correct strong speeds based on when they occurred
+        WindIndex2 = ifelse( HourlyWindSpeed > 15, dens, 0 ) )
 
 # Before any formal analysis we need to check our data for outliers, 
 # colinearity among predictors, sample size etc.
@@ -77,7 +85,8 @@ stoc_df <- stoc_df %>%
 # We start by checking for outliers, skewed distribution etc #
 # create a vector with predictor names
 prednames <- c("jday", "aftersun_h", "HourlyWindSpeed",
-               "HourlyTemp", "HourlyRain", "dens", "WindIndex" )
+               "HourlyTemp", "HourlyRain", "dens", 
+               "WindIndex", "WindIndex2" )
 # loop over each to create histograms for each predictor:
 for( p in 1:length(prednames) ){
   # create an object with the ggplot so that you can display it 
@@ -121,8 +130,8 @@ cor( stoc_df[ , prednames] )
 
 # We standardise predictors so that we can compare effect sizes
 sc_df <- stoc_df
-sclpreds <- c( "jday", "aftersun_h", "HourlyWindSpeed", "HourlyTemp", 
-               "HourlyRain", "WindIndex")
+sclpreds <- c( "aftersun_h", "HourlyWindSpeed", "HourlyTemp", 
+               "HourlyRain", "WindIndex", "WindIndex2", "dens" )
 for( i in 1:length(sclpreds ) ){
   sc_df[,sclpreds[i]]  <- scale( sc_df[ ,sclpreds[i] ] )
  print( hist( sc_df[,sclpreds[i]], main = sclpreds[i] ) )
@@ -136,8 +145,14 @@ head( sc_df )
 
 # We start by running a full model including all fixed effects of interest #
 # as well as a random intercept for survey 
-m1 <- glmer( stoc ~ aftersun_h + HourlyTemp + HourlyRain +
-               HourlyWindSpeed + WindIndex + dens +
+m1 <- glmer( stoc ~ aftersun_h + HourlyTemp +
+               #actually think that we should not include rain
+               #HourlyRain +
+               #We may need to include wind metrics in separate models
+               HourlyWindSpeed + # WindIndex + WindIndex2 +
+               #Activity density was derived from detections so 
+               # on second thought it isn't ok to use
+               #dens +
                (1|jday), family = binomial,
              data = sc_df )
 #view results
@@ -172,8 +187,14 @@ visreg( #which model do we want to plot results for?
 
 # if we want to stick to visreg, we could rerun the model with the unscaled 
 # values and use those results for plotting
-m2 <- glmer( stoc ~ aftersun_h + HourlyTemp + HourlyRain +
-               HourlyWindSpeed + WindIndex + dens +
+m2 <- glmer( stoc ~ aftersun_h + HourlyTemp +
+               #actually think that we should not include rain
+               #HourlyRain +
+               #We may need to include wind metrics in separate models
+               HourlyWindSpeed + # WindIndex + WindIndex2 +
+               #Activity density was derived from detections so 
+               # on second thought it isn't ok to use
+               #dens +
                (1|jday), family = binomial,
              data = stoc_df )
 #check that we got the same p values
@@ -186,19 +207,14 @@ visreg( fit =  m2,
 #plot only the important variables
 #readjust number of panels and increase font size
 par( mfrow = c(1,1), cex = 1.7 )
-visreg( fit = m2, scale = "response", xvar = "dens",
-        ylab = "Detection probability", xlab = "Density of diel vocal activity")
+visreg( fit = m2, scale = "response", xvar = "aftersun_h",
+        ylab = "Detection probability", xlab = "Hours after sunset")
 
-# relationship between hours after sunset and owl vocal activity
-ggplot( stoc_df, aes( x = aftersun_h, y = dens ) ) +
-  theme_bw( base_size = 15 ) +
-  labs( x = "Hours after sunset", y = "Density of vocal activity" ) +
-  geom_line( size = 2 )
 # How would you use this results to guide monitoring?
 
 #############################################################################
 # Saving relevant objects and data ---------------------------------
 #save workspace in case we need to make changes
-save.image( "STOCDetResultsWorkspace" )
+save.image( "STOCDetResultsWorkspace.RData" )
 
 ############### END OF SCRIPT ########################################

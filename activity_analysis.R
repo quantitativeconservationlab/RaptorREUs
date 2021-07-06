@@ -119,5 +119,5 @@ write.csv(x = stoc_fit,
           row.names = FALSE )
 
 # save workspace in case we want different plots
-save.image( "ActivityResults" )
+save.image( "ActivityResults.RData" )
 ############### END OF SCRIPT ########################################
