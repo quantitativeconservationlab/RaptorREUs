@@ -13,8 +13,11 @@ rm( list = ls() )
 # correct Rstudio project) #
 getwd()
 
+#install packages
+install.packages( "unmarked" ) #distance sampling and other population modeling
 #load packages
 library( tidyverse )
+library( unmarked )
 # set option to see all columns and more than 10 rows
 options( dplyr.width = Inf, dplyr.print_min = 100 )
 ## end of package load ###############
@@ -43,12 +46,57 @@ dist_df <- raw_df %>%
 
 #check 
 head( dist_df ); dim( dist_df)
-
-dist_df <- dist_df %>% rowwise() %>% 
-  mutate( maxdist  = last(distcols[ grep( 'YES', dist_df[,distcols] ) ]) )
+#create maxdist column, which we will modify in a loop
+dist_df$maxdist <- distcols[1]
+#loop over distance columns for each row, replacing Yes/no wiht 1/0 and
+#max dist with maximum distance where detection was YES
+for( i in 1:dim(dist_df)[1]){
+  dist_df$maxdist[i]<- last(distcols[ grep( 'YES', dist_df[i,distcols] ) ]) 
+  dist_df[i,distcols] <- ifelse( dist_df[i,distcols] == "YES", 1, 0 )
+}
 #check 
 head( dist_df ); dim( dist_df)
+#now turn max distance into numeric
+dist_df$maxdist <- parse_number( dist_df$maxdist)
 
+#plot raw data
+hist( dist_df$maxdist )
+
+## prep dataframe for distance analysis
+#extract detection dataframe into matrix
+ydat <- dist_df[,distcols]
+#turn into numeric values
+ydat <- apply(ydat, 2, FUN = as.numeric )
+#remove column names
+colnames(ydat) <- NULL
+#convert to matrix
+ydat <- ydat %>% as.matrix() 
+#view
+ydat[1:5,]
+class(ydat )
+as.matrix( ydat)
+#now extract site level predictors 
+covs <- dist_df %>% select( Habitat.type, Recorder.ID ) %>% 
+      mutate( Habitat.type = as.factor(Habitat.type),
+              Recorder.ID = as.factor(Recorder.ID) )
+covs
+
+#define transect lengths
+tlengths <- rep( parse_number(last(distcols)), dim(ydat)[1])
+#define distance breaks
+brks <- parse_number( distcols ) 
+brks <- c( brks[1],brks[1:length(brks)] + 2.5)
+#define unmarked dataframe
+umf <- unmarkedFrameDS( y = as.matrix(ydat), siteCovs = covs, survey = "line",
+          dist.breaks = brks, tlength = tlengths, unitsIn = "m" )
+
+#view dataframe
+summary( umf )
+#run model
+m1 <- distsamp( ~ 1 + Habitat.type + Recorder.ID ~1, 
+                keyfun = "halfnorm", data = umf )
+
+m1
 #############################################################################
 # Saving relevant objects and data ---------------------------------
 #save workspace in case we need to make changes
