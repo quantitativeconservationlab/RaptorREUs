@@ -45,7 +45,7 @@ workdir <- getwd()
 
 # set path to where you can access the Access database in your computer. #
 # Note that the path will be different in yours than mine.#
-datapath <- "C:/Users/jencruz/Google Drive/QCLabShared/Projects/REUs2021/database/"
+datapath <- "G:/My Drive/QCLabShared/Projects/REUs2021/database/"
 #import relevant tables, which have been exported from Access database as #
 # .csv files# 
 
@@ -78,7 +78,14 @@ station_df <- left_join( surveys, stations,
 #view
 station_df; dim( station_df )
 # why is checking dimensions important?
-
+#answer: 
+#
+#replacing missing coordinates from one of the survey locations, wiht
+# another survey location within the same pac (site 13):
+to <- which(station_df$survey_id == 31)
+from <- which(station_df$survey_id == 30)
+station_df$easting[to] <- station_df$easting[from]
+station_df$northing[to] <- station_df$northing[from]
 # to calculate hour when the sun set we need coordinates. Our spatial info is #
 # in easting northings but we need lat longs. #
 # if you want to learn a bit more about dealing with spatial data, go through #
@@ -265,7 +272,11 @@ records_df <- records_df %>%
 #check
 head( records_df );dim( records_df )
 #plot histogram of negative records
-hist( records_df$aftersun_h)#
+records_df %>% filter( record == 'wind' ) %>%
+  filter( duration_m < 60 ) %>% 
+  ggplot(.) + theme_classic() +
+  geom_histogram( aes( x = duration_m))
+
 
 ########## end of initial data cleaning #################################
 #############################################################################

@@ -37,7 +37,7 @@ options( dplyr.width = Inf, dplyr.print_min = 100 )
 workdir <- getwd()
 
 # set your own datapath
-datapath <- "C:/Users/jencruz/Google Drive/QCLabShared/Projects/REUs2021/database/"
+datapath <- "G:/My Drive/QCLabShared/Projects/REUs2021/database/"
 
 #import records file:
 stoc_df <- read.csv( file = paste0( datapath,"stoc_det_df.csv" ),
@@ -73,7 +73,8 @@ stoc_df <- stoc_df %>%
           #first index accounts for windspeed ranking them based on max
           #value detected, then multiplies them by activity density
           # to account for when they occurred
-        WindIndex = (HourlyWindSpeed / max( HourlyWindSpeed )) * dens,
+        #WindIndex = (HourlyWindSpeed / max( HourlyWindSpeed )) * dens,
+        WindIndex = HourlyWindSpeed * dens,
         #second index only looks at windspeeds > 15 (since owls were detected
         # at less speeds than that ) # and then assigns the activity density #
         #value to correct strong speeds based on when they occurred
@@ -126,12 +127,13 @@ for( p in 1:length(prednames) ){
 # Now that we are happy with no outliers, we can check for #
 # correlation among predictors. Why is this important?
 cor( stoc_df[ , prednames] )
-# Nothing about 0.7 so we get ready for our actual analysis
+#Any above 0.7? 
+### YES: HourlyTemp and jday so we can only include one in analysis
 
 # We standardise predictors so that we can compare effect sizes
 sc_df <- stoc_df
 sclpreds <- c( "aftersun_h", "HourlyWindSpeed", "HourlyTemp", 
-               "HourlyRain", "WindIndex", "WindIndex2", "dens" )
+               "HourlyRain", "WindIndex", "WindIndex2", "dens", "jday" )
 for( i in 1:length(sclpreds ) ){
   sc_df[,sclpreds[i]]  <- scale( sc_df[ ,sclpreds[i] ] )
  print( hist( sc_df[,sclpreds[i]], main = sclpreds[i] ) )
@@ -146,18 +148,39 @@ head( sc_df )
 # We start by running a full model including all fixed effects of interest #
 # as well as a random intercept for survey 
 m1 <- glmer( stoc ~ aftersun_h + HourlyTemp +
-               #actually think that we should not include rain
+               #actually think that we should not include rain because not enough
+               #variability 
                #HourlyRain +
                #We may need to include wind metrics in separate models
-               HourlyWindSpeed + # WindIndex + WindIndex2 +
+               HourlyWindSpeed + #WindIndex + WindIndex2 +
                #Activity density was derived from detections so 
                # on second thought it isn't ok to use
                #dens +
-               (1|jday), family = binomial,
+               #define random effect for survey_id
+               (1|survey_id), 
+             family = binomial,
              data = sc_df )
 #view results
 summary( m1 )
-
+# # # Alternative wind models removed because I don't think the indices are very good
+# m2 <- glmer( stoc ~ aftersun_h + jday +
+#                HourlyWindSpeed +
+#                (1|survey_id), family = binomial,
+#              data = sc_df )
+# #view results
+# summary( m2 )
+# 
+# # m2 <- glmer( stoc ~ aftersun_h + HourlyTemp +
+# #                #include wind metrics in separate models
+# #                WindIndex +# WindIndex2 +
+# #                (1|survey_id), family = binomial,
+# #              data = sc_df )
+# # #view results
+# # summary( m2 )
+# #compare models
+# anova( m1, m2 )
+# #model m2 with wind index has lower AIC than wind speed so choosen as top model
+# 
 #What do the random intercepts account for?
 nullm <- glmer( stoc ~ (1|jday), family = binomial,
                 data = sc_df )
@@ -167,7 +190,7 @@ MuMIn::r.squaredGLMM( m1, nullm )
 # How do we interpret these results?
 # Tip: think about how much the R2c and R2m differ, and how much of that #
 # is due to the fixed effects.
-
+#R2m is the contribution of fixed effects only, R2c also includes random effects
 ### model validation
 model_simres <- simulateResiduals( m1 )
 #you can plot the results:
@@ -188,14 +211,8 @@ visreg( #which model do we want to plot results for?
 # if we want to stick to visreg, we could rerun the model with the unscaled 
 # values and use those results for plotting
 m2 <- glmer( stoc ~ aftersun_h + HourlyTemp +
-               #actually think that we should not include rain
-               #HourlyRain +
-               #We may need to include wind metrics in separate models
-               HourlyWindSpeed + # WindIndex + WindIndex2 +
-               #Activity density was derived from detections so 
-               # on second thought it isn't ok to use
-               #dens +
-               (1|jday), family = binomial,
+               HourlyWindSpeed + 
+               (1|survey_id), family = binomial,
              data = stoc_df )
 #check that we got the same p values
 summary( m2 )
@@ -209,6 +226,9 @@ visreg( fit =  m2,
 par( mfrow = c(1,1), cex = 1.7 )
 visreg( fit = m2, scale = "response", xvar = "aftersun_h",
         ylab = "Detection probability", xlab = "Hours after sunset")
+
+visreg( fit = m2, scale = "response", xvar = "HourlyTemp",
+        ylab = "Detection probability", xlab = "Hourly temperature (C)")
 
 # How would you use this results to guide monitoring?
 

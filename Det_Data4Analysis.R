@@ -31,7 +31,7 @@ library( weathermetrics ) #convert from imperial to metric
 workdir <- getwd()
 
 # set your own datapath
-datapath <- "C:/Users/jencruz/Google Drive/QCLabShared/Projects/REUs2021/database/"
+datapath <- "G:/My Drive/QCLabShared/Projects/REUs2021/database/"
 
 #import records file:
 all_df <- read.csv( file = paste0( datapath,"clean_records_df.csv" ),
@@ -56,8 +56,8 @@ allweather <- read.csv( file = paste0( datapath, "/predictor_data/weather2019-20
 keep <- all_df %>% 
   filter( record == 'STOC' ) %>% 
   summarise( survey_id = unique( survey_id ) )
-# We have 3 stations to work with
-
+# check:
+keep
 ######### creating hourly detection dataframe ---------------------
 # We select relevant survey details:
 surv_df <- surveys %>% 
@@ -234,17 +234,18 @@ owl_hr$stoc[ is.na( owl_hr$stoc ) ] <- 0
 owl_hr$duration_m[ is.na( owl_hr$duration_m ) ] <- 0
 
 #get sunset hour for those nearby days that were not in records
-sun_df <- owl_hr %>% group_by( jday ) %>% 
-  summarise( sunset_hr = last( unique( sunset_hr ) )  ) 
+sun_df <- owl_hr %>% group_by( survey_id ) %>% 
+  filter( !is.na(sunset_hr) ) %>%  
+  summarise( sunset_hr = last( sunset_hr )) 
 #check
 sun_df 
 #from here we can see that there are only two hours 18 or 19 for our sampling #
 # days. So it is probably unncessary to recalculate sunset_hr for all our records#
-#instead we can just replace those jdays <86 with 18 and those >85 with 19
-owl_hr$sunset_hr[ which(owl_hr$jday < 86 ) ] <- 18 
-owl_hr$sunset_hr[ which(owl_hr$jday > 85 ) ] <- 19
+#instead we can just replace missing values
+owl_hr <- owl_hr %>% select( -sunset_hr ) %>% 
+  left_join( sun_df, by = 'survey_id' )
 #check
-head( owl_df )
+head( owl_hr )
 #Calculate aftersun_h:
 owl_hr$aftersun_h <- owl_hr$hr - owl_hr$sunset_hr 
 owl_hr$aftersun_h[ which( (owl_hr$aftersun_h < -2) | (owl_hr$aftersun_h > 5) )] <- 
@@ -252,6 +253,7 @@ owl_hr$aftersun_h[ which( (owl_hr$aftersun_h < -2) | (owl_hr$aftersun_h > 5) )] 
 #<-
 #check
 head( owl_hr,20 );dim( owl_hr )
+owl_hr %>% filter( stoc == 1 )
 # We never detected owls < 2 hrs or more tan 12 hrs after sun so remove those:
 owl_hr <- owl_hr[ which( (owl_hr$aftersun_h > -3 ) & ( owl_hr$aftersun_h < 13 ) ), ]
 
@@ -282,7 +284,7 @@ weather_df <- allweather %>%
                     HourlyWindSpeed )
 #check
 head( weather_df )
-# Separate date coulm into date and time
+# Separate date columns into date and time
 weather_df <- weather_df %>% 
   separate( DATE, c("wdate", "wtime"), "T" )
 
@@ -312,7 +314,8 @@ unique( weather_df$HourlyWindSpeed )
 #replace empty with 0
 weather_df$HourlyWindSpeed[ which( weather_df$HourlyWindSpeed == "" ) ] <- 0 
 #turn to numeric:
-weather_df$HourlyWindSpeed <- as.numeric( weather_df$HourlyWindSpeed )
+weather_df$HourlyWindSpeed <- as.numeric(
+  sub( "s.*", "", weather_df$HourlyWindSpeed ))
 #check
 tail( weather_df,50 )
 #convert to metric system and extract hour and day of year:
@@ -350,6 +353,6 @@ write.csv(x = det_df,
           file = paste0( datapath, 'stoc_det_df.csv'), 
           row.names = FALSE )
 #save workspace in case we need to make changes
-save.image( "Data4AnalysisWorkspace" )
+save.image( "Data4AnalysisWorkspace.RData" )
 
 ############### END OF SCRIPT ########################################
