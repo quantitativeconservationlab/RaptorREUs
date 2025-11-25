@@ -1,0 +1,114 @@
+"Site.ID","jday_1","jday_2","jday_3","jday_4","jday_5","timetodetect_1","timetodetect_2","timetodetect_3","timetodetect_4","timetodetect_5","Observer.Name_1","Observer.Name_2","Observer.Name_3","Observer.Name_4","Observer.Name_5","First.detection.type_1","First.detection.type_2","First.detection.type_3","First.detection.type_4","First.detection.type_5","detection_1","detection_2","detection_3","detection_4","detection_5"
+"105293",78,78,96,96,NA,5,10,5,5,NA,"Stefanie Buxel","Stefanie Buxel","Sydney Smith","Mariah Hoel",NA,"None","None","None","None",NA,0,0,0,0,NA
+"105320",84,84,84,96,96,5,5,8,5,5,"Dylan Hendry","Mariah Hoel","Dylan Hendry","Sydney Smith","Mariah Hoel","None","None","None","None","None",0,0,0,0,0
+"105333",71,71,71,93,93,5,5,8,5,5,"David Bontrager","Dylan Hendry","Dylan Hendry","Dylan Hendry","Mariah Hoel","None","None","None","None","None",0,0,0,0,0
+"105346",71,71,71,93,93,5,5,8,5,5,"Dylan Hendry","David Bontrager","Dylan Hendry","Dylan Hendry","Mariah Hoel","None","None","None","None","None",0,0,0,0,0
+"105476",75,75,75,NA,NA,0,0,7,NA,NA,"Lillie Scofield","Jessica Hovey","Lillie Scofield",NA,NA,"Auditory","Auditory","None",NA,NA,1,1,0,NA,NA
+"105489",79,79,79,79,79,6,4,6,8,8,"Stefanie Buxel","Mariah Hoel","Stefanie Buxel","Stefanie Buxel","Stefanie Buxel","Fresh scat","Fresh scat","Fresh scat","None","None",1,1,1,0,0
+"112520",77,77,77,96,96,5,5,9,5,5,"Mariah Hoel","Stefanie Buxel","Stefanie Buxel","Stefanie Buxel","Jessica Hovey","None","None","None","None","None",0,0,0,0,0
+"112533",77,77,77,93,93,5,5,18,5,5,"Dylan Hendry","Sydney Smith","Sydney Smith","Dylan Hendry","Mariah Hoel","None","None","None","None","None",0,0,0,0,0
+"112546",77,77,93,93,322,5,5,5,5,8,"Dylan Hendry","Sydney Smith","Dylan Hendry","Mariah Hoel","Sydney Smith","None","None","None","None","None",0,0,0,0,0
+"112559",77,77,77,93,NA,-5,5,12,5,NA,"Sydney Smith","Dylan Hendry","Sydney Smith","Dylan Hendry",NA,"None","None","None","Active burrow",NA,0,0,0,1,NA
+"112572",77,NA,NA,NA,NA,2,NA,NA,NA,NA,"Sydney Smith",NA,NA,NA,NA,"Auditory",NA,NA,NA,NA,1,NA,NA,NA,NA
+"112585",77,77,77,93,93,5,-35,8,5,5,"Dylan Hendry","Sydney Smith","Sydney Smith","Dylan Hendry","Mariah Hoel","None","None","None","None","None",0,0,0,0,0
+"112702",83,83,83,89,89,1,5,7,5,5,"Jessica Hovey","Lillie Scofield","Lillie Scofield","Stefanie Buxel","David Bontrager","Active burrow","None","None","None","None",1,0,0,0,0
+"120985",78,78,78,93,93,5,5,15,-715,729,"Dylan Hendry","Lillie Scofield","Lillie Scofield","Dylan Hendry","Mariah Hoel","None","None","None","None","Active burrow",0,0,0,0,1
+"120998",78,78,91,91,NA,5,62,5,5,NA,"Dylan Hendry","Lillie Scofield","David Bontrager","Stefanie Buxel",NA,"None","None","None","None",NA,0,0,0,0,NA
+"121037",79,79,79,91,91,5,5,19,5,5,"Dylan Hendry","Sydney Smith","Sydney Smith","David Bontrager","Stefanie Buxel","None","None","None","None","None",0,0,0,0,0
+"121063",60,82,82,82,91,5,5,5,9,5,"Stefanie Buxel","Mariah Hoel","Stefanie Buxel","Stefanie Buxel","David Bontrager","None","None","None","None","None",0,0,0,0,0
+"121076",82,82,82,91,91,5,5,8,5,5,"Mariah Hoel","Stefanie Buxel","Stefanie Buxel","David Bontrager","Stefanie Buxel","None","None","None","None","None",0,0,0,0,0
+"121089",75,75,75,NA,NA,5,5,8,NA,NA,"Jessica Hovey","Lillie Scofield","Lillie Scofield",NA,NA,"None","None","None",NA,NA,0,0,0,NA,NA
+"121115",82,82,82,89,89,5,5,5,5,5,"Stefanie Buxel","Mariah Hoel","Stefanie Buxel","Stefanie Buxel","David Bontrager","None","None","None","None","None",0,0,0,0,0
+"128263",79,79,79,91,92,5,5,9,5,5,"Dylan Hendry","Sydney Smith","Sydney Smith","Stefanie Buxel","David Bontrager","None","None","None","None","None",0,0,0,0,0
+"128302",69,75,75,91,NA,5,5,7,5,NA,"Jessica Hovey","Lillie Scofield","Lillie Scofield","David Bontrager",NA,"None","None","None","None",NA,0,0,0,0,NA
+"18763",68,68,68,91,91,5,33,5,5,5,"Stefanie Buxel","Stefanie Buxel","Stefanie Buxel","Dylan Hendry","Mariah Hoel","None","None","None","None","None",0,0,0,0,0
+"27137",68,NA,NA,NA,NA,7,NA,NA,NA,NA,"Stefanie Buxel",NA,NA,NA,NA,"Auditory",NA,NA,NA,NA,1,NA,NA,NA,NA
+"27150",68,NA,NA,NA,NA,14,NA,NA,NA,NA,"Stefanie Buxel",NA,NA,NA,NA,"Auditory",NA,NA,NA,NA,1,NA,NA,NA,NA
+"27163",68,NA,NA,NA,NA,6,NA,NA,NA,NA,"Stefanie Buxel",NA,NA,NA,NA,"Auditory",NA,NA,NA,NA,1,NA,NA,NA,NA
+"27176",83,NA,NA,NA,NA,1,NA,NA,NA,NA,"Sydney Smith",NA,NA,NA,NA,"Auditory",NA,NA,NA,NA,1,NA,NA,NA,NA
+"27189",68,68,68,NA,NA,1,1,9,NA,NA,"Jessica Hovey","Sydney Smith","Sydney Smith",NA,NA,"Auditory","Auditory","None",NA,NA,1,1,0,NA,NA
+"34350",76,NA,NA,NA,NA,2,NA,NA,NA,NA,"Stefanie Buxel",NA,NA,NA,NA,"Auditory",NA,NA,NA,NA,1,NA,NA,NA,NA
+"34363",69,NA,NA,NA,NA,4,NA,NA,NA,NA,"Stefanie Buxel",NA,NA,NA,NA,"Auditory",NA,NA,NA,NA,1,NA,NA,NA,NA
+"34376",69,NA,NA,NA,NA,2,NA,NA,NA,NA,"Stefanie Buxel",NA,NA,NA,NA,"Auditory",NA,NA,NA,NA,1,NA,NA,NA,NA
+"34389",68,NA,NA,NA,NA,1,NA,NA,NA,NA,"Sydney Smith",NA,NA,NA,NA,"Auditory",NA,NA,NA,NA,1,NA,NA,NA,NA
+"34402",68,NA,NA,NA,NA,4,NA,NA,NA,NA,"Sydney Smith",NA,NA,NA,NA,"Visual",NA,NA,NA,NA,1,NA,NA,NA,NA
+"34415",68,68,68,95,NA,5,4,10,5,NA,"Sydney Smith","Jessica Hovey","Sydney Smith","Stefanie Buxel",NA,"None","Active burrow","None","None",NA,0,1,0,0,NA
+"34441",84,84,84,95,95,5,-715,5,5,5,"David Bontrager","Stefanie Buxel","Stefanie Buxel","Jessica Hovey","Stefanie Buxel","None","None","None","None","None",0,0,0,0,0
+"42737",69,NA,NA,NA,NA,11,NA,NA,NA,NA,"Stefanie Buxel",NA,NA,NA,NA,"Auditory",NA,NA,NA,NA,1,NA,NA,NA,NA
+"42750",83,83,83,91,91,5,5,4,5,5,"David Bontrager","Sydney Smith","Sydney Smith","Dylan Hendry","Mariah Hoel","None","None","None","None","None",0,0,0,0,0
+"42763",83,NA,NA,NA,NA,2,NA,NA,NA,NA,"Sydney Smith",NA,NA,NA,NA,"Auditory",NA,NA,NA,NA,1,NA,NA,NA,NA
+"42776",83,83,83,91,91,5,5,5,5,5,"Sydney Smith","David Bontrager","Sydney Smith","Dylan Hendry","Mariah Hoel","None","None","None","None","None",0,0,0,0,0
+"42802",69,69,69,92,92,0,5,10,5,5,"Sydney Smith","Jessica Hovey","Sydney Smith","Stefanie Buxel","Mariah Hoel","None","None","None","None","None",0,0,0,0,0
+"42815",68,92,92,NA,NA,5,5,5,NA,NA,"Jessica Hovey","Stefanie Buxel","Mariah Hoel",NA,NA,"Active burrow","None","None",NA,NA,1,0,0,NA,NA
+"42854",88,88,NA,NA,NA,0,10,NA,NA,NA,"Stefanie Buxel","Jessica Hovey",NA,NA,NA,"Fresh scat","None",NA,NA,NA,1,0,NA,NA,NA
+"49950",72,75,75,91,91,5,5,11,5,5,"Mariah Hoel","Stefanie Buxel","Stefanie Buxel","Dylan Hendry","Mariah Hoel","None","None","None","None","None",0,0,0,0,0
+"49963",69,69,69,91,91,5,5,15,5,5,"Mariah Hoel","Stefanie Buxel","Stefanie Buxel","Dylan Hendry","Mariah Hoel","None","None","None","None","None",0,0,0,0,0
+"49989",84,84,84,93,NA,5,5,5,5,NA,"David Bontrager","Stefanie Buxel","Stefanie Buxel","David Bontrager",NA,"None","None","None","None",NA,0,0,0,0,NA
+"50002",84,84,84,93,93,5,5,5,5,5,"David Bontrager","Stefanie Buxel","Stefanie Buxel","David Bontrager","Stefanie Buxel","None","None","None","None","None",0,0,0,0,0
+"50041",88,88,88,96,NA,5,5,10,5,NA,"Jessica Hovey","Stefanie Buxel","Stefanie Buxel","Lillie Scofield",NA,"None","None","None","None",NA,0,0,0,0,NA
+"50054",96,96,NA,NA,NA,5,5,NA,NA,NA,"David Bontrager","Lillie Scofield",NA,NA,NA,"None","None",NA,NA,NA,0,0,NA,NA,NA
+"50067",88,88,96,NA,NA,5,10,5,NA,NA,"Stefanie Buxel","Stefanie Buxel","Lillie Scofield",NA,NA,"None","None","None",NA,NA,0,0,0,NA,NA
+"58376",83,83,83,89,89,-715,5,5,5,5,"Sydney Smith","David Bontrager","Sydney Smith","Jessica Hovey","Lillie Scofield","None","None","None","None","None",0,0,0,0,0
+"58428",68,95,282,282,NA,5,5,5,5,NA,"Lillie Scofield","Stefanie Buxel","David Bontrager","Lillie Scofield",NA,"None","None","None","None",NA,0,0,0,0,NA
+"58507",83,83,83,95,95,5,5,10,5,5,"Stefanie Buxel","Mariah Hoel","Stefanie Buxel","David Bontrager","Lillie Scofield","None","None","None","None","None",0,0,0,0,0
+"65589",83,83,83,89,NA,5,5,5,-5,NA,"David Bontrager","Sydney Smith","Sydney Smith","Lillie Scofield",NA,"None","None","None","None",NA,0,0,0,0,NA
+"65602",68,89,NA,NA,NA,5,5,NA,NA,NA,"David Bontrager","Jessica Hovey",NA,NA,NA,"None","None",NA,NA,NA,0,0,NA,NA,NA
+"65615",69,89,NA,NA,NA,5,5,NA,NA,NA,"David Bontrager","Lillie Scofield",NA,NA,NA,"Active burrow","None",NA,NA,NA,1,0,NA,NA,NA
+"65641",88,95,NA,NA,NA,-710,5,NA,NA,NA,"Stefanie Buxel","Stefanie Buxel",NA,NA,NA,"None","None",NA,NA,NA,0,0,NA,NA,NA
+"73989",88,95,NA,NA,NA,5,-35,NA,NA,NA,"Mariah Hoel","Sydney Smith",NA,NA,NA,"None","None",NA,NA,NA,0,0,NA,NA,NA
+"74002",88,88,95,95,NA,5,5,5,5,NA,"Mariah Hoel","Mariah Hoel","Sydney Smith","Mariah Hoel",NA,"None","None","None","None",NA,0,0,0,0,NA
+"74015",95,95,NA,NA,NA,5,5,NA,NA,NA,"Sydney Smith","Mariah Hoel",NA,NA,NA,"None","None",NA,NA,NA,0,0,NA,NA,NA
+"74028",89,89,95,95,NA,10,5,5,5,NA,"Lillie Scofield","Lillie Scofield","Sydney Smith","Mariah Hoel",NA,"None","None","None","None",NA,0,0,0,0,NA
+"74041",89,95,NA,NA,NA,5,5,NA,NA,NA,"Jessica Hovey","Stefanie Buxel",NA,NA,NA,"None","None",NA,NA,NA,0,0,NA,NA,NA
+"74185",70,70,70,NA,NA,122,5,15,NA,NA,"David Bontrager","David Bontrager","David Bontrager",NA,NA,"Auditory","None","None",NA,NA,1,0,0,NA,NA
+"81202",69,69,69,96,96,5,5,5,5,5,"David Bontrager","Lillie Scofield","Lillie Scofield","Sydney Smith","Mariah Hoel","None","None","None","None","None",0,0,0,0,0
+"81215",88,96,96,96,302,5,5,5,5,5,"Sydney Smith","Sydney Smith","Sydney Smith","Mariah Hoel","David Bontrager","None","None","None","None","None",0,0,0,0,0
+"81228",83,83,83,95,95,5,5,-710,6,5,"Stefanie Buxel","Mariah Hoel","Stefanie Buxel","Sydney Smith","Mariah Hoel","None","None","None","Active burrow","None",0,0,0,1,0
+"81241",83,83,83,95,95,5,5,11,5,5,"Stefanie Buxel","Mariah Hoel","Stefanie Buxel","Sydney Smith","Mariah Hoel","None","None","None","None","None",0,0,0,0,0
+"81254",83,83,83,95,95,5,5,12,-715,5,"Stefanie Buxel","Mariah Hoel","Stefanie Buxel","Sydney Smith","Mariah Hoel","None","None","None","None","None",0,0,0,0,0
+"81320",83,83,83,95,95,5,5,11,5,5,"Stefanie Buxel","Mariah Hoel","Stefanie Buxel","David Bontrager","Lillie Scofield","None","None","None","Active burrow","None",0,0,0,1,0
+"81333",69,69,96,96,283,5,3,2,2,5,"Lillie Scofield","Lillie Scofield","Jessica Hovey","Stefanie Buxel","David Bontrager","None","None","None","None","None",0,0,0,0,0
+"81359",71,71,71,96,96,5,3,9,5,5,"Dylan Hendry","David Bontrager","Dylan Hendry","Stefanie Buxel","Jessica Hovey","None","Active burrow","None","None","None",0,1,0,0,0
+"81385",82,82,82,NA,NA,3,5,6,NA,NA,"Jessica Hovey","Sydney Smith","Sydney Smith",NA,NA,"Fresh scat","None","None",NA,NA,1,0,0,NA,NA
+"81463",83,83,89,89,NA,5,7,5,5,NA,"Lillie Scofield","Lillie Scofield","Stefanie Buxel","David Bontrager",NA,"None","None","None","None",NA,0,0,0,0,NA
+"89628",88,88,88,96,NA,5,5,5,5,NA,"David Bontrager","Sydney Smith","Sydney Smith","Mariah Hoel",NA,"None","None","None","None",NA,0,0,0,0,NA
+"89641",88,88,88,96,96,5,5,5,5,5,"David Bontrager","Sydney Smith","Sydney Smith","Sydney Smith","Mariah Hoel","None","None","None","None","None",0,0,0,0,0
+"89654",88,88,88,96,96,5,5,5,5,4,"Sydney Smith","David Bontrager","Sydney Smith","Sydney Smith","Mariah Hoel","None","None","None","None","Active burrow",0,0,0,0,1
+"89667",71,71,71,92,NA,5,5,11,5,NA,"Stefanie Buxel","Stefanie Buxel","Stefanie Buxel","Dylan Hendry",NA,"None","None","None","Active burrow",NA,0,0,0,1,NA
+"89680",71,92,NA,NA,NA,5,5,NA,NA,NA,"Mariah Hoel","David Bontrager",NA,NA,NA,"None","None",NA,NA,NA,0,0,NA,NA,NA
+"89693",71,92,92,NA,NA,5,5,5,NA,NA,"Mariah Hoel","David Bontrager","Dylan Hendry",NA,NA,"None","None","None",NA,NA,0,0,0,NA,NA
+"89707",71,71,71,92,92,5,5,14,5,5,"Stefanie Buxel","Mariah Hoel","Stefanie Buxel","David Bontrager","Dylan Hendry","None","None","None","None","Active burrow",0,0,0,0,1
+"89720",84,84,84,95,95,5,5,10,5,5,"Dylan Hendry","Mariah Hoel","Dylan Hendry","David Bontrager","Lillie Scofield","None","None","None","None","None",0,0,0,0,0
+"89759",82,NA,NA,NA,NA,5,NA,NA,NA,NA,"Sydney Smith",NA,NA,NA,NA,"Auditory",NA,NA,NA,NA,1,NA,NA,NA,NA
+"89772",82,NA,NA,NA,NA,2,NA,NA,NA,NA,"Sydney Smith",NA,NA,NA,NA,"Auditory",NA,NA,NA,NA,1,NA,NA,NA,NA
+"89785",82,82,82,NA,NA,4,5,11,NA,NA,"Jessica Hovey","Sydney Smith","Sydney Smith",NA,NA,"Active burrow","None","None",NA,NA,1,0,0,NA,NA
+"89850",83,83,83,89,89,5,5,7,9,5,"Lillie Scofield","Jessica Hovey","Lillie Scofield","Stefanie Buxel","David Bontrager","None","None","None","Auditory","None",0,0,0,1,0
+"89863",83,NA,NA,NA,NA,2,NA,NA,NA,NA,"Lillie Scofield",NA,NA,NA,NA,"Auditory",NA,NA,NA,NA,1,NA,NA,NA,NA
+"96854",77,77,77,92,92,5,5,14,5,5,"Mariah Hoel","Stefanie Buxel","Stefanie Buxel","David Bontrager","Dylan Hendry","None","None","None","None","Active burrow",0,0,0,0,1
+"96867",77,77,77,92,92,5,5,11,5,5,"Mariah Hoel","Stefanie Buxel","Stefanie Buxel","David Bontrager","Dylan Hendry","None","None","None","None","None",0,0,0,0,0
+"96880",77,77,77,92,92,5,5,17,5,5,"Mariah Hoel","Stefanie Buxel","Stefanie Buxel","David Bontrager","Dylan Hendry","None","None","None","None","None",0,0,0,0,0
+"96893",77,77,92,92,NA,5,10,5,5,NA,"Stefanie Buxel","Stefanie Buxel","David Bontrager","Dylan Hendry",NA,"None","None","None","None",NA,0,0,0,0,NA
+"96933",71,71,71,89,NA,5,5,9,5,NA,"Dylan Hendry","David Bontrager","Dylan Hendry","Mariah Hoel",NA,"None","None","None","None",NA,0,0,0,0,NA
+"96946",89,89,89,96,96,5,10,5,8,8,"Sydney Smith","Sydney Smith","Mariah Hoel","Jessica Hovey","Stefanie Buxel","None","None","None","Fresh scat","Fresh scat",0,0,0,1,1
+"96959",71,71,71,NA,NA,5,1,8,NA,NA,"David Bontrager","Dylan Hendry","Dylan Hendry",NA,NA,"None","Active burrow","None",NA,NA,0,1,0,NA,NA
+"97050",75,NA,NA,NA,NA,6,NA,NA,NA,NA,"Lillie Scofield",NA,NA,NA,NA,"Auditory",NA,NA,NA,NA,1,NA,NA,NA,NA
+"97076",75,NA,NA,NA,NA,3,NA,NA,NA,NA,"Lillie Scofield",NA,NA,NA,NA,"Auditory",NA,NA,NA,NA,1,NA,NA,NA,NA
+"ARTR1",84,84,84,93,NA,5,5,5,5,NA,"David Bontrager","Stefanie Buxel","Stefanie Buxel","Stefanie Buxel",NA,"None","None","None","None",NA,0,0,0,0,NA
+"ARTR2",84,93,93,NA,NA,5,5,5,NA,NA,"David Bontrager","David Bontrager","Stefanie Buxel",NA,NA,"None","None","None",NA,NA,0,0,0,NA,NA
+"BAPR1",84,84,84,95,95,5,5,8,5,5,"Dylan Hendry","Mariah Hoel","Dylan Hendry","David Bontrager","Lillie Scofield","None","None","None","None","None",0,0,0,0,0
+"BAPR2",84,95,95,NA,NA,5,5,5,NA,NA,"Mariah Hoel","David Bontrager","Lillie Scofield",NA,NA,"None","None","None",NA,NA,0,0,0,NA,NA
+"EXAN1",69,69,69,NA,NA,3,3,8,NA,NA,"David Bontrager","Lillie Scofield","Lillie Scofield",NA,NA,"Auditory","Auditory","None",NA,NA,1,1,0,NA,NA
+"EXAN2",69,96,96,NA,NA,5,5,5,NA,NA,"David Bontrager","Jessica Hovey","Stefanie Buxel",NA,NA,"None","None","None",NA,NA,0,0,0,NA,NA
+"GS03M",77,77,93,93,108,5,11,7,7,5,"Dylan Hendry","Sydney Smith","Dylan Hendry","Mariah Hoel","Sydney Smith","None","None","Auditory","None","None",0,0,1,0,0
+"GS12H",75,75,75,89,89,5,5,8,5,5,"Lillie Scofield","Jessica Hovey","Lillie Scofield","Stefanie Buxel","David Bontrager","None","None","None","None","None",0,0,0,0,0
+"GS14M",78,79,79,79,NA,5,5,5,9,NA,"Mariah Hoel","Stefanie Buxel","Mariah Hoel","Stefanie Buxel",NA,"None","None","None","None",NA,0,0,0,0,NA
+"GS17H",70,89,89,89,NA,5,5,5,5,NA,"Mariah Hoel","Jessica Hovey","Lillie Scofield","Lillie Scofield",NA,"None","None","None","None",NA,0,0,0,0,NA
+"POSE1",69,69,69,72,75,5,5,7,5,5,"Sydney Smith","Jessica Hovey","Sydney Smith","Mariah Hoel","Stefanie Buxel","None","None","None","None","None",0,0,0,0,0
+"POSE2",69,69,69,92,92,5,5,8,5,5,"Jessica Hovey","Sydney Smith","Sydney Smith","Stefanie Buxel","Mariah Hoel","None","None","None","None","None",0,0,0,0,0
+"SDHALP7",69,69,69,95,NA,5,5,8,5,NA,"Sydney Smith","Jessica Hovey","Sydney Smith","Stefanie Buxel",NA,"None","None","None","None",NA,0,0,0,0,NA
+"SDHPLA6",69,69,69,93,NA,5,2,7,5,NA,"Sydney Smith","Jessica Hovey","Sydney Smith","David Bontrager",NA,"None","Active burrow","None","None",NA,0,1,0,0,NA
+"SRHALP3",83,83,83,91,121,-715,5,5,5,-956,"Sydney Smith","David Bontrager","Sydney Smith","Mariah Hoel","Mariah Hoel","None","None","None","None","None",0,0,0,0,0
+"SRHALP5",70,NA,NA,NA,NA,0,NA,NA,NA,NA,"Dylan Hendry",NA,NA,NA,NA,"Auditory",NA,NA,NA,NA,1,NA,NA,NA,NA
+"SRHALP6",82,82,82,96,96,5,5,10,5,5,"Jessica Hovey","Sydney Smith","Sydney Smith","Jessica Hovey","Stefanie Buxel","None","None","None","None","None",0,0,0,0,0
+"SSHALP1",88,88,96,96,NA,5,5,5,5,NA,"Jessica Hovey","Jessica Hovey","David Bontrager","Lillie Scofield",NA,"None","None","None","None",NA,0,0,0,0,NA
+"SSHPLA4",84,84,84,95,95,5,5,-55,5,5,"Stefanie Buxel","David Bontrager","Stefanie Buxel","Jessica Hovey","Stefanie Buxel","None","None","None","None","None",0,0,0,0,0
