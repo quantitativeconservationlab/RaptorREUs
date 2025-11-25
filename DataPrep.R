@@ -11,7 +11,6 @@
 library( tidyverse ) #easy data manipulation
 options( dplyr.width = Inf, dplyr.print_min = 100 )
 library( lubridate ) #easy date and time manipulation
-#library( sf ) #for spatial data
 ## end of package load ###############
 
 ############################################################
@@ -65,20 +64,26 @@ unique(datadf$Comments.Notes)
 ddf <- datadf %>% 
   dplyr::select( -Fresh.squirrel.scat.samples.collected, -Fresh.jackrabbit.scat.samples.collected,
                  -Dominant.Shrub, -Dominant.Understory, -ObjectID, -Bearing, -Wind..km.h.,
-                 -Comments.Notes)
+                 -Comments.Notes )
 #view
 head(ddf)
 
 ##now focus on cleaning detections
 table(datadf$First.detection.type)
-#### write results somewhere of raw detections by each type
+#### write results somewhere of raw detections by each type ####
+
+### fix dates
 ddf <- ddf %>% 
+  # remove 6pm from date column
     dplyr::mutate( Date = sub(" .*", "", Date),
-        #date = lubridate::mdy(Date, tz = "MST"),
+        #combine date with start time:
         starttime = lubridate::mdy_hm( paste(Date, Start.time ), tz = "MST"),
+        #combine date with time detection time:
         detecttime = lubridate::mdy_hm( paste(Date, Time.to.first.detection ),
                                         tz = "MST"),
+        #now work out day of year
         jday = yday(starttime),
+        #calculates difference in minutes between start time and time to detection:
         timetodetect = difftime( detecttime, starttime, units = "mins" ) )
 
 #view
@@ -100,6 +105,9 @@ hist(ddf$jday )
 #check
 ddf[ ddf$jday > 125, ]
 # 6 records that need fixing
+
+######
+########################### once data are fixed we can continue ################
 ### we can continue for now. Next step is to create a column noting detection
 # as 1 or 0 
 ddf<- ddf %>% 
@@ -110,9 +118,54 @@ ddf<- ddf %>%
 #check
 head(ddf)
 
+############ getting data ready for unmarked analysis #################
+#first need to assign survey id 
+widedf <- ddf %>% arrange( Site.ID, jday, Survey.Type ) %>% 
+  group_by( Site.ID ) %>% 
+  mutate( survey  = row_number() )
+  
+#check
+head(widedf)
+
+#check for sites that were surveyed more than 5 times
+widedf[ widedf$survey > 5,]
+#two sites! check surveys
+widedf[ widedf$Site.ID == "42776", ]
+widedf[ widedf$Site.ID == "POSE1", ]
+dim(widedf)
+#remove those additional surveys
+widedf <- widedf[ !(widedf$survey > 5), ]
+#check
+dim(widedf)
+#removed 6 records 
+
+#replace empty detection type with none
+widedf$First.detection.type[ widedf$First.detection.type == "" ] <- "None"
+
+table( widedf$Survey.Type, widedf$timetodetect )
+
+#turn wide
+widedf <- widedf %>% 
+  dplyr::select( -Observer.Type, -Date, -detecttime, -starttime,
+                 -Survey.Type ) %>% 
+  pivot_wider( names_from = survey, 
+               values_from = c(jday, timetodetect, Observer.Name,
+                                First.detection.type,
+                               detection ) )
+
+#view
+head( widedf)
+
+
+
 ##################################### save #################################
-# clean trap details
+# clean long format data
 write.csv( ddf, file = "GroundSquirrelOccupancy/CleanData.csv",
            row.names = FALSE )
 
+write.csv( widedf, file = "GroundSquirrelOccupancy/WideData.csv",
+           row.names = FALSE )
+
+#save workspace to continue working from where we left off
+save.image("DataCleanResults.RData" )
 ############################ end of script ####################################
