@@ -14,7 +14,7 @@ rm( list = ls() )
 getwd()
 
 #install packages
-install.packages( "unmarked" ) #distance sampling and other population modeling
+#install.packages( "unmarked" ) #distance sampling and other population modeling
 
 #load packages
 library( tidyverse )
@@ -41,17 +41,29 @@ raw_df <- read.csv( file = paste0( datapath,"GC_distance_trials.csv" ),
 tail( raw_df ); dim( raw_df )
 #get column names for the distance columns
 distcols <- grep( "X", colnames(raw_df),value = TRUE )
+#only keep the first 100 m
+distcols <- distcols[1:21]
 # create distance dataframe by removing extra columns
 dist_df <- raw_df %>%  
   select( Date.Time, Habitat.type, Recorder.ID, Trial.ID, all_of(distcols) )
-
 #check 
 head( dist_df ); dim( dist_df)
 # check that recorder IDs were entered correctly
 unique( dist_df$Recorder.ID )
 # two version of MSO39. Fix:
 dist_df$Recorder.ID[which(dist_df$Recorder.ID == "MSO039")] <- "MSO39"
+#fix mislabels
+dist_df$Recorder.ID[which(dist_df$Recorder.ID == "MSO63 un")] <- "MSO63"
+#recorders that are too data poor
+#exclude <- c( "MSO63", "MSO24","MSO123","MSO95" )
+#remove them from dataframe
+#dist_df <- dist_df %>% filter( !(Recorder.ID %in% exclude) )
+#check 
+head( dist_df ); dim( dist_df)
 
+#combine canyons
+dist_df$Habitat.type[which(dist_df$Habitat.type == "Medium_canyon")] <- "Canyon"
+dist_df$Habitat.type[which(dist_df$Habitat.type == "Wide_canyon")] <- "Canyon"
 #create maxdist column, which we will modify in a loop
 dist_df$maxdist <- distcols[1]
 #loop over distance columns for each row, replacing Yes/no wiht 1/0 and
@@ -95,7 +107,8 @@ tlengths <- rep( parse_number(last(distcols)), dim(ydat)[1])
 brks <- parse_number( distcols ) 
 brks <- c( brks[1],brks[1:length(brks)] + 2.5)
 #define unmarked dataframe
-umf <- unmarkedFrameDS( y = as.matrix(ydat), siteCovs = covs, survey = "line",
+umf <- unmarkedFrameDS( y = as.matrix(ydat), siteCovs = covs, 
+                        survey = "line",
           dist.breaks = brks, tlength = tlengths, unitsIn = "m" )
 
 #view dataframe
@@ -111,7 +124,7 @@ m1
 # the habitat consistent. We choose Burnt for now as it was the habitat #
 # chosen as an intercept #
 recDet <- data.frame( Recorder.ID = unique(covs$Recorder.ID),
-                      Habitat.type = "Burnt" )
+                      Habitat.type = "Ponderosa" )
 #view
 recDet
 #predict partial relationship between recorder effects and detection
@@ -154,15 +167,15 @@ recdf %>%  ggplot(., aes( x = drange, y = mdet, color = Recorder ) ) +
   # add labels
   labs( x = "Distance (m)", y = "Predicted detection" ) +
   # add band of confidence intervals
-  geom_smooth( aes(ymin = ldet, ymax = hdet, fill = Recorder ), 
-               stat = "identity",
-               size = 1.5, alpha = 0.2 ) +
+  # geom_smooth( aes(ymin = ldet, ymax = hdet, fill = Recorder ), 
+  #              stat = "identity",
+  #              size = 1.5, alpha = 0.2 ) +
   # add mean line on top
   geom_line( size = 2 ) 
 ####----------------------------------------
 # Repeat for habitat type, keeping recorder consistent. We stick to a 
 # good recorder for now, but can also produce another with a poor one.
-habDet <- data.frame( Recorder.ID = "MSO39",
+habDet <- data.frame( Recorder.ID = "MSO02",
                       Habitat.type = unique(covs$Habitat.type) )
 #view
 habDet
@@ -183,8 +196,8 @@ pred.det.hab %>%
   #add mean detection for each recorder
   geom_point( size = 4 ) +
   # add confidence intervals
-  geom_errorbar( aes(ymin = lower, ymax = upper ), 
-                 size = 1.5, width = 0.3 ) 
+  geom_errorbar( aes(ymin = lower, ymax = upper ),
+                 size = 1.5, width = 0.3 )
 
 # We now use the sigma estimates to plot the probability detection function
 # We loop through each habitat to estimate the detection function
@@ -208,9 +221,9 @@ habdf %>%  ggplot(., aes( x = drange, y = mdet, color = habitat ) ) +
   # add labels
   labs( x = "Distance (m)", y = "Predicted detection" ) +
   # add band of confidence intervals
-  geom_smooth( aes(ymin = ldet, ymax = hdet, fill = habitat ), 
-               stat = "identity",
-               size = 1.5, alpha = 0.2 ) +
+  # geom_smooth( aes(ymin = ldet, ymax = hdet, fill = habitat ), 
+  #              stat = "identity",
+  #              size = 1.5, alpha = 0.2 ) +
   # add mean line on top
   geom_line( size = 2 ) 
 

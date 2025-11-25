@@ -1,0 +1,11 @@
+year,survey_date,observer_one,observer_two,start_time,end_time,end_date,utm_e,utm_n,pac_surveyed,recov_hab,nest_roost_recov,polygon_num,survey_type,survey_method,owl_detect,species_detected,obs_type,detection_time,age,sex,owl_utm_e,owl_utm_n,bearing,bearing_method,distance_meters,distance_method,call_type,nest_roost_determined,utm_easting_nest,utm_northing_nest,notes,aru_number
+2006,05_11_2006,jeremy_white,, 3:50, 4:55, ,419801,3985159,not_designated,FALSE,FALSE,,monitoring,dish,TRUE,STOC,audible, 3:50,adult,M,,,6, ,30, ,T - territorial 4 note hoot,FALSE,,, , 
+2006,05_11_2006,tim_bowden, , 0:30, 5:00, ,419778,3985177,not_designated,FALSE,FALSE,,monitoring,dish,TRUE,STOC,audible, 4:27,unk,unk,,,331, ,20, ,T - territorial 4 note hoot,FALSE,,, , 
+2006,05_11_2006,tim_bowden, , 0:30, 5:00, ,419778,3985177,not_designated,FALSE,FALSE,,monitoring,dish,TRUE,STOC,audible, 0:35,adult,M,,,69, ,200, ,T - territorial 4 note hoot,FALSE,,, ,
+2006,05_11_2006,tim_bowden,, 1:00, 3:25, ,405076,3985770,grapevine,FALSE,FALSE,,monitoring,dish,TRUE,BUVI,audible, 1:47,adult,M,,,40, ,75, ,O - other,FALSE,,, ,
+2006,05_11_2006,jeremy_white,, 4:00, 4:45, ,422966,3986829,not_designated,FALSE,FALSE,,monitoring,dish,TRUE,STOC,audible, 4:05,adult,M,,,299, ,800, ,T - territorial 4 note hoot,FALSE,,, ,
+2006,05_11_2006,unk, , 22:00, 0:10, ,423150,3987687,lipan_point,FALSE,FALSE,,monitoring,dish,TRUE,BUVI,audible, 22:17,unk,unk,,,205, ,60, ,O - other,FALSE,,, ,
+2006,05_11_2006,unk, , 22:00, 0:10, ,423150,3987687,lipan_point,FALSE,FALSE,,monitoring,dish,TRUE,STOC,audible, 23:45,adult,M,,,268, ,1000, ,T - territorial 4 note hoot,FALSE,,, ,
+2006,05_14_2006,unk, , 21:30, 23:35, ,383638,3995911,not_designated,FALSE,FALSE,,monitoring,dish,TRUE,BUVI,audible, 22:42,adult,M,,,96, ,100, ,O - other,FALSE,,, ,
+2006,05_15_2006,tim_bowden, , 0:47, 3:10, ,379989,3997563,not_designated,FALSE,FALSE,,monitoring,dish,TRUE,STOC,audible, 2:00,adult,F,,,315, ,500, ,C - contact between pairs,FALSE,,, ,
+2006,05_15_2006,tim_bowden, , 0:47, 3:10, ,379989,3997563,not_designated,FALSE,FALSE,,monitoring,dish,TRUE,STOC,audible, 1:17,adult,M,,,14, ,150, ,"C - contact between pairs, T - territorial 4 note hoot",FALSE,,, ,
