@@ -37,22 +37,23 @@ soilraw <- read.csv( "GroundSquirrelOccupancy/soilmetrics.csv", header = TRUE,
 
 vegraw <- read.csv( "GroundSquirrelOccupancy/RAPallsites1986-2024_cover.csv", 
                     header = TRUE, row.names = NULL)
-#view
-head( widedf ); dim( widedf ) 
 #### End of data load -------------
 ####################################################################
 ##### Ready data for analysis --------------
-
 head(soilraw)
 head( vegraw)
 #prep veg data
 vegdf <- vegraw 
+#create a new object and keep only relevant columns:
 vegdf <- vegdf %>% 
   dplyr::select( Site.ID = sitename, annual_2024, perennial_2024, shrub_2024  )
 
+table(soilraw$soiltype)
+
 #prep soils
 soildf <- soilraw %>% 
-  dplyr::select( Site.ID = SiteID, soilclass, soiltype, compaction )
+  dplyr::select( Site.ID = SiteID, soilclass, soiltype, compname, compaction,
+                 description)
 
 #view
 head(soildf)
@@ -62,7 +63,7 @@ preddf <- left_join(soildf, vegdf, by = "Site.ID")
 
 head(preddf)
 #check correlation 
-cor(preddf[,5:7])
+cor(preddf[,c("annual_2024", "perennial_2024", "shrub_2024")])
 
 #add to datadf
 head( widedf)
@@ -70,7 +71,8 @@ head( widedf)
 combdf <- left_join(widedf, preddf, by = "Site.ID" )
 #view
 head(combdf)
-
+table( combdf$soiltype)
+table(combdf$description)
 ##################################### save #################################
 # clean long format data
 write.csv( combdf, file = "GroundSquirrelOccupancy/CombData.csv",

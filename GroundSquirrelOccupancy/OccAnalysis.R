@@ -30,17 +30,14 @@ library( MuMIn )
 #### Load or create data -----------------------------------------
 # Clean your workspace to reset your R environment. #
 rm( list = ls() )
-
-# #import cleaned data formatted as wide 
-# widedf <- read.csv( "GroundSquirrelOccupancy/WideData.csv", header = TRUE)
-# 
+#load workspace with save results if you already run this script
+#load( "OccResults.RData" )
+#load data if starting out 
 widedf <- read.csv( "GroundSquirrelOccupancy/CombData.csv", header = TRUE)
 
 # #import cleaned long format data for plotting
 # ddf <- read.csv( "GroundSquirrelOccupancy/CleanData.csv", header = TRUE)
 
-#view
-head( widedf ); dim( widedf ) 
 #### End of data load -------------
 ####################################################################
 ########### standardising functions  #################
@@ -59,7 +56,7 @@ standardise <- function( xmat, stdevs = 2, marg = c( 1, 2, 3 ) ) {
 # We need to define which predictors we will link to which responses #
 # We expect detection to be influenced by observer effects, time of day,
 # day of year, type of detection #
-
+head(widedf)
 # We expect occupancy to be influenced by soils and vegetation
 #let's extract columns of interest
 # detection 
@@ -71,19 +68,24 @@ jidx <- grep( "jday", colnames(widedf), value = FALSE)
 
 #calculate raw occupancy
 table(rowSums( widedf[ ,detidx], na.rm = TRUE))
-68/(68+39+6) #0.6
+#naive detection:
+1-(68/(68+39+6)) #0.4
 
 #check soil
 table(widedf$soilclass)
 #combine complex and other
+widedf[widedf$soilclass == "complex",]
 widedf$soilclass[widedf$soilclass == "other"] <- "complex"
+
+table( widedf$compaction)
+widedf$compaction[widedf$compaction == "90-100 (%)"] <- "70-85 (%)"
 
 # Let's define our unmarked dataframe:
 # Start by defining which columns represent the response (observed occurrences)
 umf <- unmarkedFrameOccu( y = as.matrix( widedf[ ,detidx]),
                           # Define predictors at the site level:
-              siteCovs = widedf[ ,c("perennial_2024", "shrub_2024",
-                                    "soilclass", "soiltype") ],
+          siteCovs = widedf[ ,c("perennial_2024", "shrub_2024", "annual_2024",
+                                "soilclass", "compaction") ],
                           # Define predictors at the survey level as a list:
                           obsCovs = list( obsv = widedf[ ,obsidx],
                                           jday = widedf[ ,jidx] ) ) 
@@ -92,8 +94,10 @@ summary( umf )
 ### standardize predictors
 scshrub <- standardise( as.matrix(siteCovs(umf)[,"shrub_2024"]), stdevs = 2, marg = 2 )
 scperen <- standardise( as.matrix(siteCovs(umf)[,"perennial_2024"]), stdevs = 2, marg = 2 )
+scannual <- standardise( as.matrix(siteCovs(umf)[,"annual_2024"]), stdevs = 2, marg = 2 )
 # We replace the predictors in our unmarked dataframe with the scaled values:
-siteCovs( umf )[,c("shrub_2024","perennial_2024") ] <- cbind(scshrub, scperen)
+siteCovs( umf )[,c("shrub_2024","perennial_2024", "annual_2024") ] <- 
+  cbind(scshrub, scperen, scannual)
 
 scday <- standardise( as.matrix( obsCovs(umf)[,c("jday") ] ), marg = 2 )
 #replace with scaled values:
@@ -102,30 +106,33 @@ obsCovs(umf)[,"jday"] <- as.vector(scday)
 #view
 summary(umf)
 
-#fix time to detection for now
-Tmax <- 5
-yy <- as.matrix( widedf[ ,timeidx])
-# yy[ yy > Tmax ] <- Tmax
-# yy[yy < 0] <- Tmax
-# #view
-# head(yy)
-# Time to detection model
-umf.ttd <- unmarkedFrameOccuTTD( y = yy ,
-                          # Define predictors at the site level:
-                          #siteCovs = closeddf[ ,c("sagebrush", "cheatgrass")],
-                          # Define predictors at the survey level as a list:
-                          obsCovs = list( obsv = widedf[ ,obsidx],
-                                          jday = widedf[ ,jidx] ),
-                          surveyLength = Tmax, numPrimary = 1 ) 
-# View summary of unmarked dataframe:
-summary( umf.ttd )
+### time to detection data formatting .
+# #fix time to detection for now
+# Tmax <- 5
+# yy <- as.matrix( widedf[ ,timeidx])
+# # yy[ yy > Tmax ] <- Tmax
+# # yy[yy < 0] <- Tmax
+# # #view
+# # head(yy)
+# # Time to detection model
+# umf.ttd <- unmarkedFrameOccuTTD( y = yy ,
+#                           # Define predictors at the site level:
+#                           #siteCovs = closeddf[ ,c("sagebrush", "cheatgrass")],
+#                           # Define predictors at the survey level as a list:
+#                           obsCovs = list( obsv = widedf[ ,obsidx],
+#                                           jday = widedf[ ,jidx] ),
+#                           surveyLength = Tmax, numPrimary = 1 ) 
+# # View summary of unmarked dataframe:
+# summary( umf.ttd )
 
+##############################################################################
 ### Analyze data ------------------------------------------
 # We are now ready to perform our analysis. Since the number of predictors #
 # is reasonable for the sample size, and there were no issues with #
 # correlation, we focus on a single full, additive model:
-fm.closed <- occu( ~ 1 +  jday +  obsv #(1 | obsv)
-                   ~ 1 + soilclass + shrub_2024 + perennial_2024, 
+fm.closed <- occu( ~ 1 +  jday +  obsv + shrub_2024
+                   ~ 1 + soilclass + # compaction + #
+                     shrub_2024 + perennial_2024 + annual_2024, 
                    data = umf )
 # Note that we start with the observation submodel, linking it to the intercept # 
 # day of year and  observer id as factors influencing detection.
@@ -139,13 +146,13 @@ fm.null <- occu( ~ 1
                   ~ 1, 
                  data = umf )
 
-### time to detection analysis
-fm.ttd <- occuTTD( psiformula = ~1,
-  detformula = ~ 1 +  jday +  obsv, #(1 | obsv)
-  ttdDist = "exp",
-                   data = umf.ttd )
-
-fm.ttd
+# ### time to detection analysis
+# fm.ttd <- occuTTD( psiformula = ~1,
+#   detformula = ~ 1 +  jday +  obsv, #(1 | obsv)
+#   ttdDist = "exp",
+#                    data = umf.ttd )
+# 
+# fm.ttd
 
 ##########################################################################
 # Model fit and evaluation -----------------------------------------------

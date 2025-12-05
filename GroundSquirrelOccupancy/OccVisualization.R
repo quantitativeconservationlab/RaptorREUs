@@ -24,9 +24,13 @@ rm( list = ls() )
 
 #load workspace 
 load("OccResults.RData" )
+# #import cleaned long format data for plotting
+ddf <- read.csv( "GroundSquirrelOccupancy/CleanData.csv", header = TRUE)
+
+
 #### End of data load -------------
 ####################################################################
-
+fm.closed
 ##### Producing model output ##############
 # Now that we have evaluated the value of our model we can produce #
 # some output. If our aim is inference on what drives occupancy and #
@@ -48,31 +52,77 @@ load("OccResults.RData" )
 n <- 100
 # start with sagebrush
 # we use our data (unscaled) to extract the observed range of the predictor:
-sagebrush <- seq( min( ddf[,"sagebrush"]),max( ddf[,"sagebrush"]),
+shrub <- seq( min( widedf[,"shrub_2024"]),max( widedf[,"shrub_2024"]),
                   length.out = n )
-#view
-sagebrush
-#standardize these values
-sage.std <- scale( sagebrush )
-#view
-sage.std
 
 #combine standardized predictor with other predictors in the model, kept at #
 # their standardized mean:
-sageData <- data.frame( sagebrush = sage.std, cheatgrass = 0 )
+shrubData <- data.frame( shrub_2024 = shrub, perennial_2024 = 24,
+                        annual_2024 = 43, soilclass = factor( "complex", 
+          levels = c("complex", "loam", "sandy" ) )  )
 # Note that you have to label the  columns exactly the same as the names of your
 # predictors in the model
 
 #Use predict function to predict expected probability of occupancy across the 
 # range of values you determine above for your predictor of interest, while 
 # keeping other predictors at their mean:
-pred.occ.sage <- predict( fm.closed, type = "state", newdata = sageData, 
+pred.occ.shrub <- predict( fm.closed, type = "state", newdata = shrubData, 
                           appendData = TRUE )
 # Note that you have to define which submodel you want to use for the prediction
 # using the type = 'state' 
 #view results
-head( pred.occ.sage ); dim( pred.occ.sage )
+head( pred.occ.shrub ); dim( pred.occ.shrub )
 
+# plot:
+shrp <- cbind( pred.occ.shrub[,c("Predicted", "lower", "upper", "shrub_2024") ] ) %>%
+  # define x and y values
+  ggplot(., aes( x = shrub_2024, y = Predicted ) ) + 
+  #choose preset look
+  theme_bw( base_size = 15 ) +
+  # add labels
+  labs( x = "Shrub cover (%)", y = "Occupancy probability" ) +
+  # add band of confidence intervals
+  geom_smooth( aes(ymin = lower, ymax = upper ), 
+               stat = "identity",
+               linewidth = 1.5, alpha = 0.5, color = "grey" ) +
+  # add mean line on top
+  geom_line( size = 2 ) 
+#view
+shrp
+
+#soil class
+soilData <- data.frame( shrub_2024 = 5, perennial_2024 = 24,
+                         annual_2024 = 43, 
+          soilclass = factor( c("complex", "loam", "sandy" ), 
+                        levels = c("complex", "loam", "sandy" ) )  )
+# Note that you have to label the  columns exactly the same as the names of your
+# predictors in the model
+
+#Use predict function to predict expected probability of occupancy across the 
+# range of values you determine above for your predictor of interest, while 
+# keeping other predictors at their mean:
+pred.occ.soil <- predict( fm.closed, type = "state", newdata = soilData, 
+                           appendData = TRUE )
+# Note that you have to define which submodel you want to use for the prediction
+# using the type = 'state' 
+
+# Now plot observer effects:
+soilp <- pred.occ.soil %>%
+  # define x and y values
+  ggplot(., aes( y = soilclass, x = Predicted, color = soilclass ) ) + 
+  #choose preset look
+  theme_bw( base_size = 15 ) +
+  #remove legend
+  theme( legend.position = "none" ) +
+  # add labels
+  labs( y = "Soil class", x = "Occupancy probability" ) +
+  #add mean detection for each observer
+  geom_point( size = 4 ) +
+  # add confidence intervals
+  geom_errorbar( aes(xmin = lower, xmax = upper ), 
+                 size = 1.5, width = 0.3 ) 
+#view
+soilp
 
 ################# detection relationships ############################
 #######
@@ -82,6 +132,7 @@ head( pred.occ.sage ); dim( pred.occ.sage )
 # and keep the other predictors in that submodel at their mean value:
 obsvDet <- data.frame( 
   jday = 86, 
+  shrub_2024 = 5,
   obsv = factor( c("David Bontrager","Dylan Hendry",
                    "Jessica Hovey", "Lillie Scofield", "Mariah Hoel",    
                    "Stefanie Buxel","Sydney Smith" ), 
@@ -91,7 +142,7 @@ obsvDet <- data.frame(
 #view
 obsvDet
 #Now predict partial relationship between observer effects and detection
-pred.det.obsv <- predict( fm.ttd, #fm.closed, 
+pred.det.obsv <- predict( fm.closed, 
                           type = "det", newdata = obsvDet, 
                           appendData = TRUE )
 #view
@@ -105,7 +156,7 @@ obsvp.det <- pred.det.obsv %>%
   #remove legend
   theme( legend.position = "none" ) +
   # add labels
-  labs( y = "Observer", x = "Predicted detection" ) +
+  labs( y = "Observer", x = "Detection probability" ) +
   #add mean detection for each observer
   geom_point( size = 4 ) +
   # add confidence intervals
@@ -116,10 +167,11 @@ obsvp.det
 
 ####### Now for day of year and detection 
 # we use our data (unscaled) to extract the observed range of the predictor:
-dayyr <- seq( min( ddf[,"jday"]),max( ddf[,"jday"]),
+dayyr <- seq( min( ddf[,"jday"] ),max( ddf[,"jday"]),
               by = 1 )
 dateyr <- as.Date( dayyr, origin = "2025-01-01" )
-dayDet <- data.frame( obsv = factor("Dylan Hendry",  
+dayDet <- data.frame(  shrub_2024 = 5,
+  obsv = factor("Dylan Hendry",  
                                     levels = c("David Bontrager","Dylan Hendry",
                                                "Jessica Hovey", "Lillie Scofield", "Mariah Hoel",    
                                                "Stefanie Buxel","Sydney Smith" ) ), jday = dayyr )
@@ -131,7 +183,7 @@ head( dayDet )
 
 #predict partial relationship between sagebrush and detection probability 
 # using the predict function
-pred.det.day <- predict( fm.ttd, #fm.closed, 
+pred.det.day <- predict(fm.closed, 
                          type = "det", newdata = dayDet, 
                          appendData = TRUE )
 
@@ -142,7 +194,7 @@ dayp <- cbind( pred.det.day[,c("Predicted", "lower", "upper") ], dateyr ) %>%
   #choose preset look
   theme_bw( base_size = 15 ) +
   # add labels
-  labs( x = "Day of year", y = "Detection probability" ) +
+  labs( x = "Date of survey", y = "Detection probability" ) +
   # add band of confidence intervals
   geom_smooth( aes(ymin = lower, ymax = upper ), 
                stat = "identity",
