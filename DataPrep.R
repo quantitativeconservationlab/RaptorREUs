@@ -70,7 +70,7 @@ head(ddf)
 
 ##now focus on cleaning detections
 table(datadf$First.detection.type)
-#### write results somewhere of raw detections by each type ####
+#### write results somewhere of raw detections by each type!
 
 ### fix dates
 ddf <- ddf %>% 
@@ -105,9 +105,9 @@ hist(ddf$jday )
 #check
 ddf[ ddf$jday > 125, ]
 # 6 records that need fixing
-
-######
-########################### once data are fixed we can continue ################
+#check that dates make sense
+min(ddf$Date); max(ddf$Date)
+#those are all fixed now
 ### we can continue for now. Next step is to create a column noting detection
 # as 1 or 0 
 ddf<- ddf %>% 
@@ -118,6 +118,32 @@ ddf<- ddf %>%
 #check
 head(ddf)
 
+#there appears to be records assigned to the wrong type or technician:
+ddf %>% filter( Observer.Type == "Lead" ) %>% 
+  filter( Survey.Type == "Day 1 Transect" )
+#fixed
+#check how many sites had detections
+ddf %>% filter( First.detection.type != "" ) %>% 
+  group_by( Site.ID ) %>% 
+  slice(1)
+#now check sites with < 5 records
+a <- ddf %>%  
+  group_by( Site.ID ) %>% 
+  summarize( detected = sum(detection),
+  surveys = n() )
+
+#there should be no sites with 1 survey only and no detections
+a %>% filter( detected == 0 ) %>% 
+  filter( surveys == 2 )
+
+#lastly check for duplicated records
+ddf[duplicated( ddf ),]
+#check
+ddf %>% filter( Site.ID == "74002")
+
+#fixed as much as possible. some datasheets are missing!!!
+########
+#############################################################################
 ############ getting data ready for unmarked analysis #################
 #first need to assign survey id 
 widedf <- ddf %>% arrange( Site.ID, jday, Survey.Type ) %>% 
@@ -131,18 +157,28 @@ head(widedf)
 widedf[ widedf$survey > 5,]
 #two sites! check surveys
 widedf[ widedf$Site.ID == "42776", ]
-widedf[ widedf$Site.ID == "POSE1", ]
+widedf[ widedf$Site.ID == "POSE2", ]
+widedf[ widedf$Site.ID == "81215", ]
 dim(widedf)
 #remove those additional surveys
 widedf <- widedf[ !(widedf$survey > 5), ]
 #check
 dim(widedf)
-#removed 6 records 
+#removed extra records 
 
 #replace empty detection type with none
 widedf$First.detection.type[ widedf$First.detection.type == "" ] <- "None"
 
 table( widedf$Survey.Type, widedf$timetodetect )
+head(widedf)
+
+#modify time to detection for analysis 
+widedf %>% filter(detection == 1) %>% 
+  filter( timetodetect > 5 )
+#modify detections to < 5 min time
+widedf$timetodetect[ widedf$detection == 1 & widedf$timetodetect > 5] <- 4
+#modify non-detections to 5 min
+widedf$timetodetect[ widedf$detection == 0 & widedf$timetodetect > 5] <- 5
 
 #turn wide
 widedf <- widedf %>% 
