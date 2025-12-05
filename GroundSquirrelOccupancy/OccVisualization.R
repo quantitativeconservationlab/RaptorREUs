@@ -16,18 +16,21 @@ getwd()
 library( tidyverse )#includes dplyr, tidyr and ggplot2
 options( dplyr.width = Inf, dplyr.print_min = 100 )
 library( unmarked ) #
+library( tmap )
 ## end of package load ###############
 ###################################################################
 #### Load or create data -----------------------------------------
-# Clean your workspace to reset your R environment. #
-rm( list = ls() )
-
 #load workspace 
 load("OccResults.RData" )
 # #import cleaned long format data for plotting
 ddf <- read.csv( "GroundSquirrelOccupancy/CleanData.csv", header = TRUE)
+#load NCA shapefile 
+NCA <- sf::st_read( "Z:/Common/QCLData/NCA/GIS_NCA_IDARNGpgsSampling/BOPNCA_Boundary.shp", 
+                    quiet = TRUE)
 
-
+#load sites
+sites <- sf::st_read(  "Z:/Common/GroundSquirrels/SiteShapefiles/combsites.shp" , 
+                      quiet = TRUE )
 #### End of data load -------------
 ####################################################################
 fm.closed
@@ -208,8 +211,37 @@ dayp
 #### end detection relationships #############
 
 ###################extracting predicted values #############
-ranef( fm.ttd)
+#now plot occupancy 
+
+head( widedf )
+#naive occupancy 
+rowSums(widedf[ , detidx], na.rm = TRUE)
+
 #Estimated p for all observations
-head(getP(fm.ttd))
+head(getP(fm.closed))
+re <- ranef( fm.closed )
+
+#combine occupancy estimates
+occdf <- data.frame( sitename = widedf$Site.ID, 
+                     naive = rowSums(widedf[ , detidx], na.rm = TRUE),
+                     estimated =bup(re, stat = "mode") )
+occdf$naive[ occdf$naive >1 ] <- 1
+
+head(occdf)
+head(sites)
+sitesdf <- right_join( sites, occdf, by  ="sitename" )
+head(sitesdf)
+
+
+#map
+tm_shape( NCA ) +
+  tm_borders(lwd = 2, col = "black" ) + 
+  tm_shape( sitesdf ) + tm_dots(size = 0.1) +
+tm_shape( sitesdf %>% 
+            filter( estimated == 1 ) ) + tm_dots(size = 0.15, col = "purple")
+
+
+
 
 #################################
+######################### end of script ########################################
